@@ -1,0 +1,10 @@
+version: "2"
+
+services:
+  app:
+    build: app/Dockerfile
+    entrypoint: '/start-reload.sh'
+    ports:
+        - 8080:80 # guest:host
+    volumes:
+        - ./app:/app
