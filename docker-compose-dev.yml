@@ -1,8 +1,10 @@
 version: "2"
 
+# TODO: ADD NGINX SERVICE
+
 services:
-  # Isolated container for the app server.
   app:
+    # Isolated container for the app server.
     build: app/Dockerfile
     entrypoint: '/start-reload.sh'
     ports:
@@ -10,28 +12,30 @@ services:
     volumes:
         - ./app:/app
     networks:
-      - db_nw
-      - web_nw
-  # Isolated container for the Potgresql DB.
+      - db_network
+      - app_network
   db:
+    # Isolated container for the Potgresql DB.
     image: postgres:11.5
     environment:
       POSTGRES_PASSWORD: books_exchanger
       POSTGRES_USER: books_exchanger
       POSTGRES_DB: books_exchanger
     ports:
-      - 15432:5432
-  networks:
-      - db_nw
+      - 15432:5432 # guest:host
+    networks:
+        - db_network
 
-  # TODO: ADD NGINX SERVICE
-
-  # Make the containers talk only in isolated environment.
-  # The containers can talk only in the defined containers in the networks.
-  # Without this bridge the containers will not know each other.
-  # Also, they will know has the DNS of allies containers (service name).
   networks:
-    db_nw:
+    # Make the containers talk only in isolated environment.
+    # The containers can talk only in the defined containers in the networks.
+    # Without this bridge the containers will not know each other.
+    # Also, they will know has the DNS of allies containers (service name).
+    
+    db_network:
+      # db_network = app-server <---> db    
       driver: bridge
-    web_nw:
+
+    app_network:
+      # app_network = nginx <---> app-server    
       driver: bridge
