@@ -4,38 +4,47 @@ version: "2"
 
 services:
   app:
-    # Isolated container for the app server.
-    build: app/Dockerfile
-    entrypoint: '/start-reload.sh'
+    build: 
+      dockerfile: ./app_server/Dockerfile
+      context: .
+
     ports:
         - 8080:80 # guest:host
+    
     volumes:
-        - ./app:/app
+        - ./app_server/app:/app
+    
     networks:
       - db_network
       - app_network
+    
+    depends_on:
+      - db
+  
   db:
-    # Isolated container for the Potgresql DB.
     image: postgres:11.5
+
     environment:
       POSTGRES_PASSWORD: books_exchanger
       POSTGRES_USER: books_exchanger
       POSTGRES_DB: books_exchanger
+
     ports:
       - 15432:5432 # guest:host
+
     networks:
         - db_network
+  
+networks:
+  # Make the containers talk only in isolated environment.
+  # The containers can talk only in the defined containers in the networks.
+  # Without this bridge the containers will not know each other.
+  # Also, they will know has the DNS of allies containers (service name).
+  
+  db_network:
+    # db_network = app-server <---> db    
+    driver: bridge
 
-  networks:
-    # Make the containers talk only in isolated environment.
-    # The containers can talk only in the defined containers in the networks.
-    # Without this bridge the containers will not know each other.
-    # Also, they will know has the DNS of allies containers (service name).
-    
-    db_network:
-      # db_network = app-server <---> db    
-      driver: bridge
-
-    app_network:
-      # app_network = nginx <---> app-server    
-      driver: bridge
+  app_network:
+    # app_network = nginx <---> app-server    
+    driver: bridge
