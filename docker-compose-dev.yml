@@ -1,7 +1,5 @@
 version: "2"
 
-# TODO: ADD NGINX SERVICE
-
 services:
   app:
     build: 
@@ -9,14 +7,10 @@ services:
       context: .
 
     ports:
-        - 8080:8080 # guest:host
+        - 8080:8080 # host:container
     
     volumes:
         - ./app/:/app
-    
-    networks:
-      - db_network
-      - app_network
     
     depends_on:
       - db
@@ -28,23 +22,3 @@ services:
       POSTGRES_PASSWORD: books_exchanger
       POSTGRES_USER: books_exchanger
       POSTGRES_DB: books_exchanger
-
-    ports:
-      - 15432:5432 # guest:host
-
-    networks:
-        - db_network
-  
-networks:
-  # Make the containers talk only in isolated environment.
-  # The containers can talk only in the defined containers in the networks.
-  # Without this bridge the containers will not know each other.
-  # Also, they will know has the DNS of allies containers (service name).
-  
-  db_network:
-    # db_network = app-server <---> db    
-    driver: bridge
-
-  app_network:
-    # app_network = nginx <---> app-server    
-    driver: bridge
