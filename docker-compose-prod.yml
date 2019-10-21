@@ -1,5 +1,7 @@
 version: "2"
 
+# TODO: Finish configurations and test.
+
 services:
   app:
     build: 
