@@ -1,7 +1,5 @@
 version: "2"
 
-# TODO: Finish configurations and test.
-
 services:
   app:
     build: 
@@ -29,7 +27,7 @@ services:
       - 8080:80 # host:container
     
     volumes:
-      - ./conf.d:/etc/nginx/conf.d
+      - ./nginx/:/etc/nginx/conf.d/
     
     depends_on:
       - app
