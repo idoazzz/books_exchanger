@@ -16,15 +16,15 @@ services:
     image: postgres:11.5
 
     environment:
-      POSTGRES_PASSWORD: books_exchanger
-      POSTGRES_USER: books_exchanger
-      POSTGRES_DB: books_exchanger
+      POSTGRES_PASSWORD: exchanger
+      POSTGRES_USER: exchanger
+      POSTGRES_DB: exchanger
 
   nginx:
     image: nginx:1.13.5
     
     ports:
-      - 8080:80 # host:container
+      - 80:80 # host:container
     
     volumes:
       - ./nginx/:/etc/nginx/conf.d/
