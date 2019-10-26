@@ -1,10 +1,11 @@
-import sys, os
+import os
+import sys
 from alembic import context
 from sqlalchemy import pool
 from app.db.models import Base
+from logging.config import fileConfig
 from app.db.config import DATABASE_URI
 from sqlalchemy import engine_from_config
-from logging.config import fileConfig
 
 
 # this is the Alembic Config object, which provides

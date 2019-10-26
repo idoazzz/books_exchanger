@@ -3,7 +3,7 @@ import datetime
 from .base import Base
 from sqlalchemy.orm import relationship
 from sqlalchemy import (Column, Integer, String, Date, Boolean, ForeignKey, 
-                        DateTime, Double, Table)
+                        DateTime, Float, Table)
 
 
 # DB Tables:
@@ -24,8 +24,8 @@ class User(Base):
     password = Column(String(25), nullable=False)
     email = Column(String(50), unique=True, nullable=False)
     join_date = Column(DateTime, default=datetime.datetime.utcnow)
-    lat = Column(Double, nullable=False)
-    lan = Column(Double, nullable=False)
+    lat = Column(Float, nullable=False)
+    lan = Column(Float, nullable=False)
     address = Column(String(25), nullable=False)
 
     def __repr__(self):
@@ -33,6 +33,17 @@ class User(Base):
                 self.address)
         return f"{self.__class__.__name__}: {data}, Admin: {self.admin}"
 
+
+class Category(Base):
+    """Holds books that users added."""
+    __tablename__ = 'categories'
+    id = Column(Integer, primary_key=True)
+    name = Column(String, unique=True, nullable=False)
+    books = relationship("Book", secondary='books_categories')
+ 
+    def __repr__(self):
+        data = (self.id, self.name)
+        return f"{self.__class__.__name__}: {data}"
 
 class Book(Base):
     """Holds books that users added."""
@@ -42,7 +53,7 @@ class Book(Base):
     author = Column(String)
     description = Column(String)
     publication_date = Column(Date)
-    categories = relationship(Category, secondary='books_categories')
+    categories = relationship("Category", secondary='books_categories')
         
     def __repr__(self):
         data = (self.id, self.title, self.author, self.description,
@@ -60,13 +71,3 @@ class BookCategory(Base):
         data = (self.book_id, self.category_id)
         return f"{self.__class__.__name__}: {data}"
     
-class Category(Base):
-    """Holds books that users added."""
-    __tablename__ = 'categories'
-    id = Column(Integer, primary_key=True)
-    name = Column(String, unique=True, nullable=False)
-    books = relationship(Book, secondary='books_categories')
- 
-    def __repr__(self):
-        data = (self.id, self.name)
-        return f"{self.__class__.__name__}: {data}"

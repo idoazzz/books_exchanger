@@ -10,4 +10,6 @@ RUN pipenv install --system
 
 EXPOSE 8080
 
+ENV PYTHONPATH="/"
+
 ENTRYPOINT ["/bin/bash", "startup.sh"]

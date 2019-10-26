@@ -4,14 +4,14 @@ from sqlalchemy import create_engine
 from contextlib import contextmanager
 from sqlalchemy.orm import sessionmaker
 
-from models import Base
+from app.db.models import Base
 
 
-PORT = os.environ.get('EXCHANGER_PORT', '5432')
-DB = os.environ.get('EXCHANGER_DB', 'exchanger')
-HOST = os.environ.get('EXCHANGER_HOST', 'localhost')
-USERNAME = os.environ.get('EXCHANGER_USERNAME', 'exchanger')
-PASSWORD = os.environ.get('EXCHANGER_PASSWORD', 'exchanger')
+PORT = os.environ.get('POSTGRES_PORT', '5432')
+DB = os.environ.get('POSTGRES_DB', 'exchanger')
+HOST = os.environ.get('POSTGRES_HOST', 'db')
+USERNAME = os.environ.get('POSTGRES_USERNAME', 'exchanger')
+PASSWORD = os.environ.get('POSTGRES_PASSWORD', 'exchanger')
 DATABASE_URI = f'postgres+psycopg2://{USERNAME}:{PASSWORD}@{HOST}:{PORT}/{DB}'
 
 engine = create_engine(DATABASE_URI)
