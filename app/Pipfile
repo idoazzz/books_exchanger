@@ -8,10 +8,9 @@ verify_ssl = true
 [packages]
 uvicorn = "*"
 fastapi = "*"
-pyscopg2 = "*"
-psycopg2 = "==2.7.1"
-psycopg2-binary = "*"
+psycopg2 = "*"
 sqlalchemy = "*"
+alembic = "*"
 
 [requires]
 python_version = "3.7"
