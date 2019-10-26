@@ -3,13 +3,12 @@ import datetime
 from .base import Base
 from sqlalchemy.orm import relationship
 from sqlalchemy import (Column, Integer, String, Date, Boolean, ForeignKey, 
-                        DateTime)
+                        DateTime, Double, Table)
 
 
 # DB Tables:
 # users:              All the users of the app.      V
 # books:              All books that users added.    V
-# cities:             Cities that our app support.   V
 # matches:            Matches between two users.
 # categories:         All possible books categories.
 # users_books:        Books that users has.
@@ -25,25 +24,14 @@ class User(Base):
     password = Column(String(25), nullable=False)
     email = Column(String(50), unique=True, nullable=False)
     join_date = Column(DateTime, default=datetime.datetime.utcnow)
+    lat = Column(Double, nullable=False)
+    lan = Column(Double, nullable=False)
+    address = Column(String(25), nullable=False)
 
-    # Relationships
-    city_id = Column(Integer, ForeignKey('cities.id'), nullable=False)
-    city = relationship("City")
-        
     def __repr__(self):
-        data = (self.id, self.name, self.email)
+        data = (self.id, self.name, self.email, self.lat, self.lan, 
+                self.address)
         return f"{self.__class__.__name__}: {data}, Admin: {self.admin}"
-
-
-class City(Base):
-    """Holds exchanger app supported cities."""
-    __tablename__ = 'cities'
-    id = Column(Integer, primary_key=True)
-    name = Column(String(25), unique=True, nullable=False)
-
-    def __repr__(self):
-        data = (self.id, self.name)
-        return f"{self.__class__.__name__}: {data}"
 
 
 class Book(Base):
@@ -54,8 +42,21 @@ class Book(Base):
     author = Column(String)
     description = Column(String)
     publication_date = Column(Date)
- 
+    
+    # Many to many - books categories
+        
     def __repr__(self):
         data = (self.id, self.title, self.author, self.description,
                 self.publication_date)
+        return f"{self.__class__.__name__}: {data}"
+
+
+class Category(Base):
+    """Holds books that users added."""
+    __tablename__ = 'categories'
+    id = Column(Integer, primary_key=True)
+    name = Column(String, unique=True, nullable=False)
+ 
+    def __repr__(self):
+        data = (self.id, self.name)
         return f"{self.__class__.__name__}: {data}"
