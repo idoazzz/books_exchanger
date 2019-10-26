@@ -1,4 +1,39 @@
 """Contains DB configurations."""
+import os
+from sqlalchemy import create_engine
+from contextlib import contextmanager
+from sqlalchemy.orm import sessionmaker
 
-# postgres+psycopg2://<USERNAME>:<PASSWORD>@<IP_ADDRESS>:<PORT>/<DATABASE_NAME>
-URI = 'postgres+psycopg2://exchanger:exchanger@localhost:5432/exchanger'
+from models import Base
+
+
+USERNAME = os.environ.get('EXCHANGER_USERNAME', 'exchanger')
+PASSWORD = os.environ.get('EXCHANGER_PASSWORD', 'exchanger')
+HOST = os.environ.get('EXCHANGER_HOST', 'localhost')
+DB = os.environ.get('EXCHANGER_DB', 'exchanger')
+PORT = os.environ.get('EXCHANGER_PORT', '5432')
+
+DATABASE_URI = f'postgres+psycopg2://{USERNAME}:{PASSWORD}@{HOST}:{PORT}/{DB}'
+
+engine = create_engine(DATABASE_URI)
+Session = sessionmaker(bind=engine)
+
+
+@contextmanager
+def transaction():
+    s = Session()
+    try:
+        yield s
+
+    except:
+        s.rollback()
+        raise
+
+    finally:
+        s.close()
+
+
+def recreate_database():
+    Base.metadata.drop_all(engine)
+    Base.metadata.create_all(engine)
+    # Can create here test environment for DB.

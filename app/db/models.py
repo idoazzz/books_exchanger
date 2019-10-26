@@ -10,9 +10,9 @@ from sqlalchemy import (Column, Integer, String, Date, Boolean, ForeignKey,
 # users:              All the users of the app.      V
 # books:              All books that users added.    V
 # matches:            Matches between two users.
-# categories:         All possible books categories.
+# categories:         All possible books categories. V
 # users_books:        Books that users has.
-# books_categories:   Categories of books.
+# books_categories:   Categories of books.           V
 
 
 class User(Base):
@@ -42,20 +42,30 @@ class Book(Base):
     author = Column(String)
     description = Column(String)
     publication_date = Column(Date)
-    
-    # Many to many - books categories
+    categories = relationship(Category, secondary='books_categories')
         
     def __repr__(self):
         data = (self.id, self.title, self.author, self.description,
                 self.publication_date)
         return f"{self.__class__.__name__}: {data}"
 
+class BookCategory(Base):
+    """Link model between books and categories."""
+    __tablename__ = 'books_categories'
+    book_id = Column(Integer, ForeignKey('books.id'), primary_key=True)
+    category_id = Column(Integer, ForeignKey('categories.id'), 
+                         primary_key=True)
 
+    def __repr__(self):
+        data = (self.book_id, self.category_id)
+        return f"{self.__class__.__name__}: {data}"
+    
 class Category(Base):
     """Holds books that users added."""
     __tablename__ = 'categories'
     id = Column(Integer, primary_key=True)
     name = Column(String, unique=True, nullable=False)
+    books = relationship(Book, secondary='books_categories')
  
     def __repr__(self):
         data = (self.id, self.name)
