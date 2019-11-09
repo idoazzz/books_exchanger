@@ -11,7 +11,7 @@ from sqlalchemy import (Column, Integer, String, Date, Boolean, ForeignKey,
 # books:              All books that users added.    V
 # matches:            Matches between two users.
 # categories:         All possible books categories. V
-# users_books:        Books that users has.
+# users_books:        Books that users has.          V
 # books_categories:   Categories of books.           V
 
 
@@ -24,9 +24,14 @@ class User(Base):
     password = Column(String(25), nullable=False)
     email = Column(String(50), unique=True, nullable=False)
     join_date = Column(DateTime, default=datetime.datetime.utcnow)
+    
     lat = Column(Float, nullable=False)
     lan = Column(Float, nullable=False)
+    
     address = Column(String(25), nullable=False)
+
+    books = relationship("Book", secondary='users_books')
+
 
     def __repr__(self):
         data = (self.id, self.name, self.email, self.lat, self.lan, 
@@ -53,6 +58,7 @@ class Book(Base):
     author = Column(String)
     description = Column(String)
     publication_date = Column(Date)
+    users = relationship("User", secondary='users_books')
     categories = relationship("Category", secondary='books_categories')
         
     def __repr__(self):
@@ -69,5 +75,16 @@ class BookCategory(Base):
 
     def __repr__(self):
         data = (self.book_id, self.category_id)
+        return f"{self.__class__.__name__}: {data}"
+    
+
+class UserBook(Base):
+    """Link model between books and users."""
+    __tablename__ = 'users_books'
+    user_id = Column(Integer, ForeignKey('users.id'), primary_key=True)
+    book_id = Column(Integer, ForeignKey('books.id'), primary_key=True)
+
+    def __repr__(self):
+        data = (self.book_id, self.user_id)
         return f"{self.__class__.__name__}: {data}"
     
