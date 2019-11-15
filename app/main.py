@@ -19,12 +19,15 @@ with open("categories.txt") as file, transaction() as session:
         session.add(Category(name=category))
         session.commit()
 
-    session.query(Category).all()
-
 
 @app.get("/")
 def read_root():
     return {"Hello": "World"}
+
+@app.get("/categories")
+def get_categories():
+    with transaction() as session:
+        return {"Hello": str(session.query(Category).all())}
 
 
 @app.get("/items/{item_id}")
