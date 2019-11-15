@@ -17,7 +17,7 @@ with open("categories.txt") as file, transaction() as session:
     for category in categories:
         logger.debug("Adding category: %s", category)
         session.add(Category(name=category.strip()))
-        session.commit()
+    session.commit()
 
 
 @app.get("/")
