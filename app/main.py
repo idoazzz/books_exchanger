@@ -29,9 +29,7 @@ def get_categories():
     """Get categories from the db and return JSON result."""
     with transaction() as session:
         categories = session.query(Category).all()
-
-    categories_names = \
-        list(map(lambda category: str(category.name), categories))
+    categories_names = list(map(lambda object: str(object.name), categories))
     return {"categories": categories_names}
 
 # TODO: Design here with comments endpoints.
