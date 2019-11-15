@@ -11,12 +11,12 @@ logger.setLevel(logging.DEBUG)
 logger.debug("Creating the database...")
 recreate_database()
 
-logger.debug("Init categories table...")
+logger.debug("Initialize categories table...")
 with open("categories.txt") as file, transaction() as session:
     categories = set(file.readlines())
     for category in categories:
         logger.debug("Adding category: %s", category)
-        session.add(Category(name=category))
+        session.add(Category(name=category.strip()))
         session.commit()
 
 
@@ -26,10 +26,10 @@ def read_root():
 
 @app.get("/categories")
 def get_categories():
+    """Get categories from the db and return JSON result."""
     with transaction() as session:
-        return {"Hello": str(session.query(Category).all())}
+        categories = session.query(Category).all()
 
-
-@app.get("/items/{item_id}")
-def read_item(item_id: int, q: str = None):
-    return {"item_id": item_id, "q": q}
+    categories_names = \
+        list(map(lambda category: str(category.name), categories))
+    return {"categories": categories_names}
