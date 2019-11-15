@@ -33,3 +33,5 @@ def get_categories():
     categories_names = \
         list(map(lambda category: str(category.name), categories))
     return {"categories": categories_names}
+
+# TODO: Design here with comments endpoints.
