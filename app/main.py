@@ -38,7 +38,9 @@ def get_categories():
 # TODO: Get books with filter endpoint.
 # TODO: Adding new category endpoint.
 # TODO: Delete book endpoint.
-# TODO: Adding user endpoint.
+# TODO: Adding user endpoint (Register).
 # TODO: Deleting user endpoint.
 # TODO: Get all books by category and radius near lat lan.
+# TODO: Get specific user matches (Build model in DB).
+# TODO: Get specific user books.
 # TODO: Authentication to each endpoint.
