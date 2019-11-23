@@ -1,38 +1,65 @@
+"""Main API endpoints for book exchanger app."""
 import logging
 from fastapi import FastAPI
 
 from app.db.config import recreate_database, transaction
 from app.db.models import Category
 
-app = FastAPI()
-logger = logging.getLogger("app")
-logger.setLevel(logging.DEBUG)
+class ExchangerApp(FastAPI):
+    """FastAPI app server wrapper.
 
-logger.debug("Creating the database...")
-recreate_database()
+    Setup the exchanger app database and hold the global data.
+    """
+    CATEGORIES_FILE = "categories.txt"
 
-logger.debug("Initialize categories table...")
-with open("categories.txt") as file, transaction() as session:
-    categories = set(file.readlines())
-    for category in categories:
-        logger.debug("Adding category: %s", category)
-        session.add(Category(name=category.strip()))
-    session.commit()
-    
-@app.get("/")
-def read_root():
-    return {"Hello": "World"}
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.logger = logging.getLogger("app")
+        self.logger.setLevel(logging.DEBUG)
+        self.setup_exchanger_server()
 
-# TODO: Add filters to categories endpoint.
+    def setup_exchanger_server(self):
+        """Initialize exchanger app server."""
+        self.logger.debug("Creating the database")
+        recreate_database()
+        self.logger.debug("Initialize categories table")
+        self.import_categories()
+
+    def import_categories(self):
+        """Import predefined categories from a file to DB."""
+        with open(self.CATEGORIES_FILE) as file, transaction() as session:
+            categories = set(file.readlines())
+            for category in categories:
+                session.add(Category(name=category.strip()))
+            self.logger.debug("Adding categories: %s", str(categories))
+            session.commit()
+
+
+app = ExchangerApp()
+
 @app.get("/categories")
-def get_categories():
-    """Get categories from the db and return JSON result."""
+def get_categories(filter: str = ""):
+    """Get categories from the db with optional filter.
+
+    Args:
+        filter (str): Optional filter for the categories.
+
+    Notes:
+        Filtering the categories with naive contains.
+
+    Returns:
+        json. Filtered categories.
+    """
     with transaction() as session:
-        categories = session.query(Category).all()
-    categories_names = list(map(lambda object: str(object.name), categories))
+        if filter is not "":
+            categories = session.query(Category).filter(
+                Category.name.contains(filter)).all()
+        else:
+            categories = session.query(Category).all()
+
+    categories_names = list(map(lambda element: str(element.name), categories))
     return {"categories": categories_names}
 
-# TODO: Add documentation.
 # TODO: Adding cities to the DB.
 # TODO: Adding book endpoint.
 # TODO: Get books with filter endpoint.
