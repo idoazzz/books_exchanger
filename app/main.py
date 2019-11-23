@@ -1,20 +1,21 @@
 """Main API endpoints for book exchanger app."""
+import re
 import logging
 from fastapi import FastAPI
 from fastapi import HTTPException
-from pydantic.main import BaseModel
 from starlette.status import HTTP_201_CREATED
 
 from app.api_models import NewUser
-from app.db.config import recreate_database, transaction
 from app.db.models import Category, Book, User
+from app.db.config import recreate_database, transaction
 
 
 class ExchangerApp(FastAPI):
     """FastAPI app server wrapper.
 
-    Setup the exchanger app database and hold the global data.
+    Setup the exchanger app database and hold app global data.
     """
+    EMAIL_FORMAT = r'^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$'
     CATEGORIES_FILE = "categories.txt"
 
     def __init__(self, *args, **kwargs):
@@ -39,6 +40,11 @@ class ExchangerApp(FastAPI):
             self.logger.debug("Adding categories: %s", str(categories))
             session.commit()
 
+    def validate_email(self, email):
+        """Validate user email."""
+        if (re.search(self.EMAIL_FORMAT, email)):
+            return True
+        return False
 
 app = ExchangerApp()
 
@@ -78,7 +84,8 @@ def add_user(user_data: NewUser):
                     lat=user_data.lat, lan=user_data.lan,
                     address=user_data.address)
 
-    # TODO: Add email format validation.
+    if app.validate_email(user_data.email) is False:
+        raise HTTPException(status_code=400, detail="Email is invalid.")
 
     with transaction() as session:
         users = session.query(User).filter_by(email=user_data.email).all()
