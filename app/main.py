@@ -1,9 +1,14 @@
 """Main API endpoints for book exchanger app."""
 import logging
 from fastapi import FastAPI
+from fastapi import HTTPException
+from pydantic.main import BaseModel
+from starlette.status import HTTP_201_CREATED
 
+from app.api_models import NewUser
 from app.db.config import recreate_database, transaction
-from app.db.models import Category
+from app.db.models import Category, Book, User
+
 
 class ExchangerApp(FastAPI):
     """FastAPI app server wrapper.
@@ -60,12 +65,59 @@ def get_categories(filter: str = ""):
     categories_names = list(map(lambda element: str(element.name), categories))
     return {"categories": categories_names}
 
-# TODO: Adding cities to the DB.
+
+@app.post("/add_user", status_code=HTTP_201_CREATED)
+def add_user(user_data: NewUser):
+    """Adding new user to DB.
+
+    Args:
+        user_data (NewUser): New user target data.
+    """
+    new_user = User(admin=False, name=user_data.name,
+                    password=user_data.password, email=user_data.email,
+                    lat=user_data.lat, lan=user_data.lan,
+                    address=user_data.address)
+
+    # TODO: Add email format validation.
+
+    with transaction() as session:
+        users = session.query(User).filter_by(email=user_data.email).all()
+
+    if users:
+        raise HTTPException(status_code=400, detail="Email is already used.")
+
+    app.logger.debug("Adding user: %s", str(new_user))
+    with transaction() as session:
+        session.add(new_user)
+        session.commit()
+
+@app.get("/users")
+def get_users(filter: str = ""):
+    """Get users from the db with optional filter.
+
+    Args:
+        filter (str): Optional filter for the users.
+
+    Notes:
+        Filtering the users with naive contains.
+
+    Returns:
+        json. Filtered users.
+    """
+    with transaction() as session:
+        if filter is not "":
+            users = session.query(User).filter(
+                User.name.contains(filter)).all()
+        else:
+            users = session.query(User).all()
+
+    return {"users": users}
+
+# TODO: Adding cities to the DB - (?)
 # TODO: Adding book endpoint.
 # TODO: Get books with filter endpoint.
 # TODO: Adding new category endpoint.
 # TODO: Delete book endpoint.
-# TODO: Adding user endpoint (Register).
 # TODO: Deleting user endpoint.
 # TODO: Get all books by category and radius near lat lan.
 # TODO: Get specific user matches (Build model in DB).
