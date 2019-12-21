@@ -1,12 +1,13 @@
+"""Categories REST endpoints."""
 from fastapi import APIRouter
 
-from app.db.models import Category
 from app.db.config import transaction
+from app.crud import get_all_categories, get_categories_by_name
 
 router = APIRouter()
 
 @router.get("/categories")
-def get_categories(filter: str = None):
+def get_categories(filter: str = None, limit: int = 100):
     """Get categories from the db with optional filter.
 
     Args:
@@ -20,10 +21,11 @@ def get_categories(filter: str = None):
     """
     with transaction() as session:
         if filter is not None:
-            categories = session.query(Category).filter(
-                Category.name.contains(filter)).all()
+            categories = get_categories_by_name(session, filter, limit)
         else:
-            categories = session.query(Category).all()
+            categories = get_all_categories(session, limit)
 
     categories_names = list(map(lambda element: str(element.name), categories))
     return {"categories": categories_names}
+
+

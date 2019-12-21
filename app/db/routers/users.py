@@ -1,22 +1,24 @@
+"""Users REST endpoints."""
 from fastapi import APIRouter
 from fastapi import HTTPException
 from pydantic.errors import EmailError
 from pydantic.utils import validate_email
 from starlette.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST
 
-from app.db.models import User
-from app.api_models import NewUser
+from app.api_models import UserCreate
 from app.db.config import transaction
+from app.crud import get_all_users, get_users_by_name, get_user_by_email, \
+    add_user
 
 router = APIRouter()
 
 
 @router.post("/add_user", status_code=HTTP_201_CREATED)
-def add_user(user_data: NewUser):
+def add_new_user(user_data: UserCreate):
     """Adding new user to DB.
 
     Args:
-        user_data (NewUser): New user target data.
+        user_data (UserCreate): New user target data.
     """
     try:
         validate_email(user_data.email)
@@ -26,19 +28,16 @@ def add_user(user_data: NewUser):
                             detail="Email is invalid.")
 
     with transaction() as session:
-        users = session.query(User).filter_by(email=user_data.email).all()
-        if users:
+        user = get_user_by_email(session, user_data)
+        if user:
             raise HTTPException(status_code=HTTP_400_BAD_REQUEST,
                                 detail="Email is already used.")
 
-        session.add(User(admin=False, name=user_data.name,
-                    password=user_data.password, email=user_data.email,
-                    latitude=user_data.latitude, longitude=user_data.longitude,
-                    address=user_data.address))
-        session.commit()
+        return add_user(session, user_data)
+
 
 @router.get("/users")
-def get_users(filter: str = None):
+def get_users(filter: str = None, limit: int = 100):
     """Get users from the db with optional filter.
 
     Args:
@@ -52,9 +51,8 @@ def get_users(filter: str = None):
     """
     with transaction() as session:
         if filter is not None:
-            users = session.query(User).filter(
-                User.name.contains(filter)).all()
+            users = get_users_by_name(session, filter, limit)
         else:
-            users = session.query(User).all()
+            users = get_all_users(session, limit)
 
     return {"users": users}
