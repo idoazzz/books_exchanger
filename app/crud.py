@@ -29,10 +29,11 @@ def get_users_by_name(session: Session, filter: str, limit: int = 100):
 
 def add_user(session: Session, user_data: UserCreate):
     """Add new user to the DB."""
+    hashed_password = hashlib.md5(user_data.password.encode()).hexdigest()
     new_user = User(name=user_data.name,
                     email=user_data.email,
                     address=user_data.address,
-                    password=hashlib.md5(user_data.password.encode()),
+                    password=hashed_password,
                     latitude=user_data.latitude,
                     longitude=user_data.longitude)
     session.add(new_user)

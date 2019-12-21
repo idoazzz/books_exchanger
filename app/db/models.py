@@ -29,7 +29,7 @@ class User(Base):
     longitude = Column(Float, nullable=False)
     name = Column(String(25), nullable=False)
     address = Column(String(25), nullable=False)
-    password = Column(String(25), nullable=False)
+    password = Column(String(100), nullable=False)
     email = Column(String(50), unique=True, nullable=False)
     join_date = Column(DateTime, default=datetime.datetime.utcnow)
 

@@ -1,8 +1,7 @@
 """Users REST endpoints."""
+from email_validator import EmailNotValidError, validate_email
 from fastapi import APIRouter
 from fastapi import HTTPException
-from pydantic.errors import EmailError
-from pydantic.utils import validate_email
 from starlette.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST
 
 from app.api_models import UserCreate
@@ -23,7 +22,7 @@ def add_new_user(user_data: UserCreate):
     try:
         validate_email(user_data.email)
 
-    except EmailError:
+    except EmailNotValidError:
         raise HTTPException(status_code=HTTP_400_BAD_REQUEST,
                             detail="Email is invalid.")
 
@@ -41,7 +40,7 @@ def get_users(filter: str = None, limit: int = 100):
     """Get users from the db with optional filter.
 
     Args:
-        filter (str): Optional filter for the users.
+        filter (str): Users name filter.
 
     Notes:
         Filtering the users with naive contains.

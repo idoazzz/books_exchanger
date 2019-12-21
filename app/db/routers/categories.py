@@ -11,7 +11,7 @@ def get_categories(filter: str = None, limit: int = 100):
     """Get categories from the db with optional filter.
 
     Args:
-        filter (str): Optional filter for the categories.
+        filter (str): Categories name filter.
 
     Notes:
         Filtering the categories with naive contains.
