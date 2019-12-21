@@ -2,8 +2,8 @@
 import datetime
 from .base import Base
 from sqlalchemy.orm import relationship
-from sqlalchemy import (Column, Integer, String, Date, Boolean, ForeignKey, 
-                        DateTime, Float, Table)
+from sqlalchemy import (Column, Integer, String, Date, ForeignKey,
+                        DateTime, Float)
 
 
 # DB Tables:
@@ -16,75 +16,72 @@ from sqlalchemy import (Column, Integer, String, Date, Boolean, ForeignKey,
 
 
 class User(Base):
-    """Holds user info."""
+    """Holds user info.
+
+    Latitude and longitude represent the base location of the user.
+    The matches will consider user base location.
+    """
     __tablename__ = 'users'
+    books = relationship("Book", secondary='users_books')
+
     id = Column(Integer, primary_key=True)
-    admin = Column(Boolean, default=False)
+    latitude = Column(Float, nullable=False)
+    longitude = Column(Float, nullable=False)
     name = Column(String(25), nullable=False)
+    address = Column(String(25), nullable=False)
     password = Column(String(25), nullable=False)
     email = Column(String(50), unique=True, nullable=False)
     join_date = Column(DateTime, default=datetime.datetime.utcnow)
-    
-    lat = Column(Float, nullable=False)
-    lan = Column(Float, nullable=False)
-    
-    address = Column(String(25), nullable=False)
-
-    books = relationship("Book", secondary='users_books')
-
 
     def __repr__(self):
-        data = (self.id, self.name, self.email, self.lat, self.lan, 
-                self.address)
-        return f"{self.__class__.__name__}: {data}, Admin: {self.admin}"
+        return f"{self.__class__.__name__}: " \
+               f"{(self.id, self.name, self.email)}"
 
 
 class Category(Base):
     """Holds books that users added."""
     __tablename__ = 'categories'
+    books = relationship("Book", secondary='books_categories')
+
     id = Column(Integer, primary_key=True)
     name = Column(String, unique=True, nullable=False)
-    books = relationship("Book", secondary='books_categories')
- 
+
     def __repr__(self):
-        data = (self.id, self.name)
-        return f"{self.__class__.__name__}: {data}"
+        return f"{self.__class__.__name__}: {(self.id, self.name)}"
 
 class Book(Base):
     """Holds books that users added."""
     __tablename__ = 'books'
-    id = Column(Integer, primary_key=True)
+    users = relationship("User", secondary='users_books')
+    categories = relationship("Category", secondary='books_categories')
+
     title = Column(String)
     author = Column(String)
     description = Column(String)
     publication_date = Column(Date)
-    users = relationship("User", secondary='users_books')
-    categories = relationship("Category", secondary='books_categories')
-        
+    id = Column(Integer, primary_key=True)
+
     def __repr__(self):
-        data = (self.id, self.title, self.author, self.description,
-                self.publication_date)
-        return f"{self.__class__.__name__}: {data}"
+        return f"{self.__class__.__name__}: " \
+               f"{(self.id, self.title, self.author)}"
 
 class BookCategory(Base):
-    """Link model between books and categories."""
+    """Relationship model between books and categories."""
     __tablename__ = 'books_categories'
     book_id = Column(Integer, ForeignKey('books.id'), primary_key=True)
-    category_id = Column(Integer, ForeignKey('categories.id'), 
+    category_id = Column(Integer, ForeignKey('categories.id'),
                          primary_key=True)
 
     def __repr__(self):
-        data = (self.book_id, self.category_id)
-        return f"{self.__class__.__name__}: {data}"
+        return f"{self.__class__.__name__}: {(self.book_id, self.category_id)}"
     
 
 class UserBook(Base):
-    """Link model between books and users."""
+    """Relationship model between books and users."""
     __tablename__ = 'users_books'
     user_id = Column(Integer, ForeignKey('users.id'), primary_key=True)
     book_id = Column(Integer, ForeignKey('books.id'), primary_key=True)
 
     def __repr__(self):
-        data = (self.book_id, self.user_id)
-        return f"{self.__class__.__name__}: {data}"
+        return f"{self.__class__.__name__}: {(self.book_id, self.user_id)}"
     

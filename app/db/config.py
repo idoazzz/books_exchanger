@@ -7,9 +7,9 @@ from sqlalchemy.orm import sessionmaker
 from app.db.models import Base
 
 
+HOST = os.environ.get('POSTGRES_HOST', 'db')
 PORT = os.environ.get('POSTGRES_PORT', '5432')
 DB = os.environ.get('POSTGRES_DB', 'exchanger')
-HOST = os.environ.get('POSTGRES_HOST', 'db')
 USERNAME = os.environ.get('POSTGRES_USERNAME', 'exchanger')
 PASSWORD = os.environ.get('POSTGRES_PASSWORD', 'exchanger')
 DATABASE_URI = f'postgres+psycopg2://{USERNAME}:{PASSWORD}@{HOST}:{PORT}/{DB}'
