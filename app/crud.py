@@ -1,8 +1,11 @@
 """CRUD operations."""
 import hashlib
 
+from sqlalchemy import asc
+from sqlalchemy import func
+
 from app.db.config import Session
-from app.db.models import Category, User
+from app.db.models import Category, User, Book
 
 
 # Categories CRUD
@@ -38,8 +41,43 @@ def get_user_by_email(session: Session, email):
 
 
 def get_near_users(session: Session, latitude, longitude, radius):
-    """Get specifc user by email address."""
-    pass
+    """Get all users in range of radius km."""
+    users_in_range = session.query(User).filter(func.acos(
+        func.sin(func.radians(latitude)) * func.sin(
+            func.radians(User.latitude)) + func.cos(
+            func.radians(latitude)) * func.cos(
+            func.radians(User.latitude)) * func.cos(
+            func.radians(User.longitude) - (
+            func.radians(longitude)))) * 6371 <= radius).order_by(asc(
+        func.acos(
+            func.sin(func.radians(latitude)) * func.sin(
+                func.radians(User.latitude)) + func.cos(
+                func.radians(latitude)) * func.cos(
+                func.radians(User.latitude)) * func.cos(
+                func.radians(User.longitude) - (
+                    func.radians(longitude)))) * 6371
+    ))
+    return users_in_range
+
+
+def get_near_users_books(session: Session, latitude, longitude, radius):
+    """Get all users in range of radius km."""
+    users_in_range = session.query(User).join(Book).filter(func.acos(
+        func.sin(func.radians(latitude)) * func.sin(
+            func.radians(User.latitude)) + func.cos(
+            func.radians(latitude)) * func.cos(
+            func.radians(User.latitude)) * func.cos(
+            func.radians(User.longitude) - (
+            func.radians(longitude)))) * 6371 <= radius).order_by(asc(
+        func.acos(
+            func.sin(func.radians(latitude)) * func.sin(
+                func.radians(User.latitude)) + func.cos(
+                func.radians(latitude)) * func.cos(
+                func.radians(User.latitude)) * func.cos(
+                func.radians(User.longitude) - (
+                    func.radians(longitude)))) * 6371
+    ))
+    return users_in_range
 
 
 def add_user(session: Session, password: str, name: str, email: str,
