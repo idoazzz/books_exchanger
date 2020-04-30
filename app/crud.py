@@ -1,7 +1,6 @@
 """CRUD operations."""
 import hashlib
 
-from app.api_models import UserCreate
 from app.db.config import Session
 from app.db.models import Category, User
 
@@ -27,15 +26,16 @@ def get_users_by_name(session: Session, filter: str, limit: int = 100):
     return session.query(User).filter(
         User.name.contains(filter)).limit(limit).all()
 
-def add_user(session: Session, user_data: UserCreate):
+def add_user(session: Session, password: str, name: str, email: str,
+             address: str, latitude: int, longitude: int):
     """Add new user to the DB."""
-    hashed_password = hashlib.md5(user_data.password.encode()).hexdigest()
-    new_user = User(name=user_data.name,
-                    email=user_data.email,
-                    address=user_data.address,
+    hashed_password = hashlib.md5(password.encode()).hexdigest()
+    new_user = User(name=name,
+                    email=email,
+                    address=address,
                     password=hashed_password,
-                    latitude=user_data.latitude,
-                    longitude=user_data.longitude)
+                    latitude=latitude,
+                    longitude=longitude)
     session.add(new_user)
     session.commit()
     # Retrieving new data like generated id.
@@ -43,7 +43,7 @@ def add_user(session: Session, user_data: UserCreate):
     return new_user
 
 
-def get_user_by_email(session: Session, user_data):
+def get_user_by_email(session: Session, email):
     """Get specifc user by email address."""
-    return session.query(User).filter_by(email=user_data.email).first()
+    return session.query(User).filter_by(email=email).first()
 

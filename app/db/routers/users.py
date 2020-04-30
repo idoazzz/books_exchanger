@@ -4,7 +4,6 @@ from fastapi import APIRouter
 from fastapi import HTTPException
 from starlette.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST
 
-from app.api_models import UserCreate
 from app.db.config import transaction
 from app.crud import get_all_users, get_users_by_name, get_user_by_email, \
     add_user
@@ -13,26 +12,28 @@ router = APIRouter()
 
 
 @router.post("/add_user", status_code=HTTP_201_CREATED)
-def add_new_user(user_data: UserCreate):
+def add_new_user(password: str, name: str, email: str, address: str,
+                 latitude: int, longitude: int):
     """Adding new user to DB.
 
     Args:
         user_data (UserCreate): New user target data.
     """
     try:
-        validate_email(user_data.email)
+        validate_email(email)
 
     except EmailNotValidError:
         raise HTTPException(status_code=HTTP_400_BAD_REQUEST,
                             detail="Email is invalid.")
 
     with transaction() as session:
-        user = get_user_by_email(session, user_data)
+        user = get_user_by_email(session, email)
         if user:
             raise HTTPException(status_code=HTTP_400_BAD_REQUEST,
                                 detail="Email is already used.")
 
-        return add_user(session, user_data)
+        return add_user(session, password, name, email, address, latitude,
+                        longitude)
 
 
 @router.get("/users")
