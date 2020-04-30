@@ -2,14 +2,14 @@
 import datetime
 
 from .base import Base
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, backref
 from sqlalchemy import (Column, Integer, String, Date, ForeignKey,
                         DateTime, Float, LargeBinary)
 
 
 class User(Base):
     __tablename__ = 'users'
-    books = relationship("Book", secondary='books_categories')
+    books = relationship("Book")
     categories = relationship("Category", secondary='users_categories')
 
     latitude = Column(Float, nullable=False)
@@ -41,12 +41,14 @@ class Book(Base):
     __tablename__ = 'books'
     categories = relationship("Category", secondary='books_categories')
 
+    user_id = Column(Integer, ForeignKey('users.id'))
+    user = relationship('User')
+
     name = Column(String, nullable=False)
     author = Column(String, nullable=False)
     image = Column(LargeBinary, nullable=True)
     description = Column(String, nullable=False)
     publication_date = Column(Date, nullable=False)
-    user_id = Column(Integer, ForeignKey('users.id'))
     id = Column(Integer, primary_key=True, autoincrement=True)
 
     def __repr__(self):

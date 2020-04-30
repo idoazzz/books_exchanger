@@ -14,7 +14,7 @@ class ExchangerApp(FastAPI):
 
     Setup the exchanger app database and hold app global data.
     """
-    CATEGORIES_FILE = "categories.txt"
+    CATEGORIES_FILE = "db/datasets/he_books_categories.txt"
 
     def __init__(self, rebuild_db=True, *args, **kwargs):
         super().__init__(*args, **kwargs)
