@@ -19,12 +19,13 @@ def transaction():
     try:
         yield s
 
-    except:
+    except Exception:
         s.rollback()
         raise
 
     finally:
         s.close()
+
 
 # Inserting categories data set.
 with transaction() as session:

@@ -4,8 +4,6 @@ from api.db.tables import Category
 CATEGORIES_LIMIT = 100
 
 
-# TODO: Check user input!!!
-
 def insert_new_category(session, name: str):
     """Insert new category to DB.
 

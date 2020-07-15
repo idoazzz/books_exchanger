@@ -1,7 +1,7 @@
 # TODO: Pass each line in each file in the process and study it!
 from typing import List
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 
 from api.db.tables import Base
 from api.api_models import CategoryResponse
@@ -24,6 +24,9 @@ def get_categories(filter: str, limit: int = 100):
     Notes:
         Filtering the categories with naive contains.
     """
+    if limit < 0:
+        raise HTTPException(status_code=400, detail="Illegal limit.")
+
     with transaction() as session:
         if filter is not None:
             categories = get_categories_by_name(session, filter, limit)
