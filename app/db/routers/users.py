@@ -1,7 +1,7 @@
 """Users REST endpoints."""
-from email_validator import EmailNotValidError, validate_email
 from fastapi import APIRouter
 from fastapi import HTTPException
+from email_validator import EmailNotValidError, validate_email
 from starlette.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST
 
 from app.db.config import transaction
@@ -30,7 +30,7 @@ def add_new_user(password: str, name: str, email: str, address: str,
         user = get_user_by_email(session, email)
         if user:
             raise HTTPException(status_code=HTTP_400_BAD_REQUEST,
-                                detail="Email is already used.")
+                                detail="Email is already taken.")
 
         return add_user(session, password, name, email, address, latitude,
                         longitude)
