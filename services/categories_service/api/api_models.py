@@ -1,9 +1,8 @@
+"""Categories API endpoints models."""
 from pydantic import BaseModel
 
-class CategoryRequest(BaseModel):
-    filter: str
-    limit: int
 
 class CategoryResponse(BaseModel):
-    id: int 
+    """Category as response."""
+    id: int
     name: str
