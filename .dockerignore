@@ -4,3 +4,4 @@ docker-compose*
 .gitignore
 README.md
 .vscode
+.pytest_cache
