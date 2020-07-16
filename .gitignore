@@ -4,5 +4,7 @@ __pycache__/
 .vscode/
 .idea/
 
+.app/
+
 build/
 .pytest_cache
