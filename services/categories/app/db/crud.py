@@ -12,7 +12,7 @@ def insert_new_category(session, name: str):
     session.add(Category(name=name.strip()))
 
 
-def get_all_categories(session, limit: int = None):
+def get_all_categories(session):
     """Get all categories from DB.
 
     Args:
@@ -22,12 +22,10 @@ def get_all_categories(session, limit: int = None):
     Returns:
         list. Fetched categories.
     """
-    if limit is None:
-        return session.query(Category).all()
-    return session.query(Category).limit(limit).all()
+    return session.query(Category).all()
 
 
-def get_categories_by_name(session, filter: str, limit: int):
+def get_categories_by_name(session, filter: str):
     """Get all categories that match to specific filter from DB.
     Args:
         filter (str): Contains filter.
@@ -37,5 +35,4 @@ def get_categories_by_name(session, filter: str, limit: int):
     Returns:
         list. Filtered categories.
     """
-    return session.query(Category).filter(
-        Category.name.contains(filter)).limit(limit).all()
+    return session.query(Category).filter(Category.name.contains(filter)).all()
