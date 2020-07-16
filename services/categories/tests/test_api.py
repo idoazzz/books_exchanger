@@ -9,7 +9,24 @@ from starlette.testclient import TestClient
 from app.main import app
 from app.db.config import CATEGORIES_FILE, DB_URL, transaction, init_categories
 
+
 # TODO: MAKE IT CLASS AND MAKE CRUD TESTING!
+# TODO: THINK ABOUT TESTING THE API ONLY WITH MOCKED DICS INSTEAD OF DB!
+# TODO: ASK ELRAN ABOUT THE TESTS!
+# TODO: ALEMBIC SUPPORT!
+
+class TestAPIEndpoints:
+    def __init__(self):
+        pass
+
+    @classmethod
+    def setup_class(cls):
+        pass
+
+    @classmethod
+    def teardown_class(cls):
+        pass
+
 
 # Tests logger.
 logger = logging.getLogger()
