@@ -1,14 +1,9 @@
 """Testing API calls."""
 import logging
 
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from testing.postgresql import Postgresql
 from starlette.testclient import TestClient
 
 from app.main import app
-from app.db.config import CATEGORIES_FILE, DB_URL, transaction, init_categories
-
 
 # TODO: MAKE IT CLASS AND MAKE CRUD TESTING!
 # TODO: THINK ABOUT TESTING THE API ONLY WITH MOCKED DICS INSTEAD OF DB!
@@ -16,85 +11,36 @@ from app.db.config import CATEGORIES_FILE, DB_URL, transaction, init_categories
 # TODO: CREATE CI WITH FLAKE8 AND TESTS!
 # TODO: ALEMBIC SUPPORT!
 
-class TestAPIEndpoints:
-    def __init__(self):
-        pass
-
-    @classmethod
-    def setup_class(cls):
-        pass
-
-    @classmethod
-    def teardown_class(cls):
-        pass
-
-
 # Tests logger.
 logger = logging.getLogger()
 logging.basicConfig(level=logging.DEBUG)
 
-# Startup test db.
-temp_test_db = Postgresql()
-engine = create_engine(temp_test_db.url(), echo=True)
-MockedSession = sessionmaker(bind=engine)
-logger.info("Tests DB was created: %s", temp_test_db.url())
-
 client = TestClient(app)
 
 
-def mocked_transaction():
-    s = MockedSession()
-
-    try:
-        yield s
-
-    except Exception:
-        s.rollback()
-        raise
-
-    finally:
-        s.close()
+class MockedCategory:
+    """Mocked category object."""
+    def __init__(self, id, name):
+        self.id = id
+        self.name = name
 
 
-app.dependency_overrides[transaction] = mocked_transaction
-
-
-def setup_module():
-    """Initiating tests temp db.
-
-    Notes:
-        Startup function.
-    """
-    session = MockedSession()
-    init_categories(session=session, engine=engine)
-    session.close()
-    logger.info("Tests temp db was initiated")
-
-
-def teardown_module():
-    """Stopping tests temp db.
-
-    Notes:
-        Teardown function.
-    """
-    temp_test_db.stop()
-    logger.info("Tests temp db was stopped")
-
-# TODO: Override CRUD
-def test_get_all_categories():
+def test_get_all_categories(mocker):
     """Test get all categories functionality."""
+    mocked_categories = [MockedCategory(1, "test1"),
+                         MockedCategory(1, "test2")]
+    mocker.patch('app.main.get_all_categories', return_value=mocked_categories)
     response = client.get("/categories")
     assert response.status_code == 200
-
     categories_response = set(element["name"] for element in response.json())
-    with open(CATEGORIES_FILE, mode="r") as file:
-        expected_categories = \
-            set(element.strip() for element in file.readlines())
+    expected_categories = set(element.name for element in mocked_categories)
     assert categories_response == expected_categories
 
 
-def test_get_not_exist_category():
+def test_get_not_exist_category(mocker):
     """Test get not exist category functionality."""
-    response = client.get("/categories?filter=not_exist")
+    not_existing_category = "not_exist"
+    mocker.patch('app.main.get_categories_by_name', return_value=[])
+    response = client.get(f"/categories?filter={not_existing_category}")
     assert response.status_code == 200
     assert response.json() == []
