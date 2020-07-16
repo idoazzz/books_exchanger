@@ -1,11 +1,11 @@
 __pycache__/
 *.pyc
-
+.git
 .vscode/
 .idea/
 
-app/
-app/*
+app
+**/data
 
 build/
 .pytest_cache
