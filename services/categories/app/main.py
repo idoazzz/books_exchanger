@@ -9,6 +9,8 @@ from .db.config import transaction, init_categories, Session, engine
 
 app = FastAPI()
 
+# TODO: ALEMBIC SUPPORT!
+
 
 @app.on_event("startup")
 async def startup_event():

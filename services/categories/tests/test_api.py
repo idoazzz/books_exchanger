@@ -9,6 +9,8 @@ from starlette.testclient import TestClient
 from app.main import app
 from app.db.config import CATEGORIES_FILE, DB_URL, transaction, init_categories
 
+# TODO: MAKE IT CLASS AND MAKE CRUD TESTING!
+
 # Tests logger.
 logger = logging.getLogger()
 logging.basicConfig(level=logging.DEBUG)
