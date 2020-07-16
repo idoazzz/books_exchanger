@@ -9,7 +9,7 @@ def insert_new_category(session, name: str):
         session (Session): Current DB session.
         name (str): Category name.
     """
-    session.add(Category(name=name.strip()))
+    session.add(Category(name=name))
 
 
 def get_all_categories(session):
