@@ -1,10 +1,11 @@
 __pycache__/
 *.pyc
-.git
 .vscode/
 .idea/
 
-app
+.git
+
+./app
 **/data
 
 build/
