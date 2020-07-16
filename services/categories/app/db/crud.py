@@ -1,5 +1,5 @@
 """Categories CRUD db operations."""
-from api.db.tables import Category
+from .tables import Category
 
 
 def insert_new_category(session, name: str):

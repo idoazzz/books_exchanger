@@ -3,12 +3,13 @@ from typing import List
 
 from fastapi import FastAPI, HTTPException
 
-from api.db.tables import Base
-from api.schemas import CategoryResponse
-from api.db.config import engine, transaction
-from api.db.crud import get_categories_by_name, get_all_categories
+from .db.tables import Base
+from .schemas import CategoryResponse
+from .db.config import engine, transaction, import_categories
+from .db.crud import get_categories_by_name, get_all_categories
 
 Base.metadata.create_all(engine)
+import_categories()
 
 MAX_LIMIT_SIZE = 200
 DEFAULT_LIMIT_SIZE = 50

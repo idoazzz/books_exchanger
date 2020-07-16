@@ -5,9 +5,9 @@ from sqlalchemy import create_engine
 from contextlib2 import contextmanager
 from sqlalchemy.orm import sessionmaker
 
-from api.db.crud import insert_new_category, get_all_categories
+from .crud import insert_new_category, get_all_categories
 
-CATEGORIES_FILE = "api/db/categories.txt"
+CATEGORIES_FILE = "app/db/categories.txt"
 
 DB_HOST = os.environ.get("DB_HOST", "localhost")
 DB_NAME = os.environ.get("DB_NAME", "postgres")
@@ -33,10 +33,11 @@ def transaction():
         s.close()
 
 
-# Inserting categories data set if it's not exist.
-with transaction() as session:
-    if len(get_all_categories(session)) == 0:
-        with open(CATEGORIES_FILE) as file:
-            for category in set(file.readlines()):
-                insert_new_category(session, name=category)
-            session.commit()
+def import_categories():
+    """Inserting categories data set if it's not exist."""
+    with transaction() as session:
+        if len(get_all_categories(session)) == 0:
+            with open(CATEGORIES_FILE) as file:
+                for category in set(file.readlines()):
+                    insert_new_category(session, name=category)
+                session.commit()
