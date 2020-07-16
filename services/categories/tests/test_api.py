@@ -80,7 +80,7 @@ def teardown_module():
     temp_test_db.stop()
     logger.info("Tests temp db was stopped")
 
-
+# TODO: Override CRUD
 def test_get_all_categories():
     """Test get all categories functionality."""
     response = client.get("/categories")

@@ -33,11 +33,16 @@ def transaction():
         s.close()
 
 
+def get_categories_dataset():
+    """Read categories from dataset file."""
+    with open(CATEGORIES_FILE, mode="r") as file:
+        return set(element.strip() for element in file.readlines())
+
+
 def init_categories(engine, session):
     """Inserting categories data set if it's not exist."""
     Base.metadata.create_all(engine)
     if len(get_all_categories(session)) == 0:
-        with open(CATEGORIES_FILE) as file:
-            for category in set(file.readlines()):
-                insert_new_category(session, name=category.strip())
-            session.commit()
+        for category in get_categories_dataset():
+            insert_new_category(session, name=category.strip())
+        session.commit()
