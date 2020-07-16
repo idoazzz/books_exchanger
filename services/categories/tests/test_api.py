@@ -15,9 +15,9 @@ logging.basicConfig(level=logging.DEBUG)
 
 # Startup test db.
 temp_test_db = Postgresql()
-logger.info("Creating tests db: %s", temp_test_db.url())
 engine = create_engine(temp_test_db.url(), echo=True)
 MockedSession = sessionmaker(bind=engine)
+logger.info("Tests DB was created: %s", temp_test_db.url())
 
 client = TestClient(app)
 
@@ -40,20 +40,28 @@ app.dependency_overrides[transaction] = mocked_transaction
 
 
 def setup_module():
-    """Initiating tests temp db."""
+    """Initiating tests temp db.
+
+    Notes:
+        Startup function.
+    """
     session = MockedSession()
-    logger.info("Initiating tests temp db")
     init_categories(session=session, engine=engine)
     session.close()
+    logger.info("Tests temp db was initiated")
 
 
-def teardown_module(module):
-    """Stopping tests temp db."""
-    logger.info("Stopping tests temp db")
+def teardown_module():
+    """Stopping tests temp db.
+
+    Notes:
+        Teardown function.
+    """
     temp_test_db.stop()
+    logger.info("Tests temp db was stopped")
 
 
-def test_get_all_categories(monkeypatch):
+def test_get_all_categories():
     """Test get all categories functionality."""
     response = client.get("/categories")
     assert response.status_code == 200

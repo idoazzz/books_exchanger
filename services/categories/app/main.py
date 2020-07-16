@@ -12,6 +12,7 @@ app = FastAPI()
 
 @app.on_event("startup")
 async def startup_event():
+    """Initiating DB."""
     session = Session()
     init_categories(session=session, engine=engine)
     session.close()
