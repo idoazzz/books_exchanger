@@ -1,3 +1,6 @@
+"""DB configurations and utils."""
+import os
+
 from sqlalchemy import create_engine
 from contextlib2 import contextmanager
 from sqlalchemy.orm import sessionmaker
@@ -6,10 +9,13 @@ from api.db.crud import insert_new_category, get_all_categories
 
 CATEGORIES_FILE = "api/db/categories.txt"
 
-# TODO: Export to environment variable.
-DATABASE_URL = "postgresql://postgres:postgres@localhost/postgres"
+DB_HOST = os.environ.get("DB_HOST", "localhost")
+DB_NAME = os.environ.get("DB_NAME", "postgres")
+DB_PASSWORD = os.environ.get("DB_PASSWORD", "postgres")
+DB_USERNAME = os.environ.get("DB_USERNAME", "postgres")
+DB_URL = f"postgresql://{DB_USERNAME}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}"
 
-engine = create_engine(DATABASE_URL, echo=True)
+engine = create_engine(DB_URL, echo=True)
 Session = sessionmaker(bind=engine)
 
 
@@ -27,7 +33,7 @@ def transaction():
         s.close()
 
 
-# Inserting categories data set.
+# Inserting categories data set if it's not exist.
 with transaction() as session:
     if len(get_all_categories(session)) == 0:
         with open(CATEGORIES_FILE) as file:

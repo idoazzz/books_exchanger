@@ -1,20 +1,23 @@
-# TODO: Pass each line in each file in the process and study it!
+"""Categories service app."""
 from typing import List
 
 from fastapi import FastAPI, HTTPException
 
 from api.db.tables import Base
-from api.api_models import CategoryResponse
+from api.schemas import CategoryResponse
 from api.db.config import engine, transaction
 from api.db.crud import get_categories_by_name, get_all_categories
 
 Base.metadata.create_all(engine)
 
+MAX_LIMIT_SIZE = 200
+DEFAULT_LIMIT_SIZE = 50
+
 app = FastAPI()
 
 
 @app.get("/categories", response_model=List[CategoryResponse])
-def get_categories(filter: str, limit: int = 100):
+def get_categories(filter: str, limit: int = DEFAULT_LIMIT_SIZE):
     """Get categories from the DB with optional filter.
 
     Args:
@@ -24,7 +27,7 @@ def get_categories(filter: str, limit: int = 100):
     Notes:
         Filtering the categories with naive contains.
     """
-    if limit < 0:
+    if limit < 0 or limit > MAX_LIMIT_SIZE:
         raise HTTPException(status_code=400, detail="Illegal limit.")
 
     with transaction() as session:
