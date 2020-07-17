@@ -7,9 +7,10 @@ __pycache__/
 .idea
 .git
 
-.tox
+services/categories/.tox
 
 /old_app
+old_app
 **/data
 
 build/
