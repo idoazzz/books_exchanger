@@ -2,6 +2,8 @@ __pycache__/
 *.pyc
 .vscode/
 .idea/
+/.idea
+.DS_Store
 .idea
 .git
 
