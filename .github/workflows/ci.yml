@@ -10,7 +10,7 @@ on:
     branches: [ master ]
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -23,6 +23,6 @@ jobs:
         python -m pip install --upgrade pip
         pip install tox
     - name: Run tox on categories service
-      run: 
+      run: |
         tox -c services/categories/tox.ini
         tox -c services/categories/tox.ini -e flake8
