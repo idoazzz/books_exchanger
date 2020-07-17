@@ -2,9 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="d57c13c9-444a-4c46-8efe-911e53712ad4" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.github/workflows/ci.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/ci.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/services/categories/startup.sh" beforeDir="false" afterPath="$PROJECT_DIR$/services/categories/startup.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/services/categories/tox.ini" beforeDir="false" afterPath="$PROJECT_DIR$/services/categories/tox.ini" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
