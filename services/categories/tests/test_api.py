@@ -5,11 +5,7 @@ from starlette.testclient import TestClient
 
 from app.main import app
 
-# TODO: MAKE IT CLASS AND MAKE CRUD TESTING!
-# TODO: THINK ABOUT TESTING THE API ONLY WITH MOCKED DICS INSTEAD OF DB!
-# TODO: ASK ELRAN ABOUT THE TESTS!
 # TODO: CREATE CI WITH FLAKE8 AND TESTS!
-# TODO: ALEMBIC SUPPORT!
 
 # Tests logger.
 logger = logging.getLogger()
