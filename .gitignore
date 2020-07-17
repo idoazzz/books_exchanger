@@ -12,6 +12,7 @@ services/categories/.tox
 /old_app
 old_app
 **/data
+.tox
 
 build/
 .pytest_cache
