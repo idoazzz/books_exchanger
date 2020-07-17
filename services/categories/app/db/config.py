@@ -8,7 +8,7 @@ from sqlalchemy.orm import sessionmaker
 from .tables import Base
 from .crud import insert_new_category, get_all_categories
 
-CATEGORIES_FILE = "app/db/categories.txt"
+CATEGORIES_FILE = "old_app/db/categories.txt"
 
 DB_NAME = os.environ.get("DB_NAME", "postgres")
 DB_HOST = os.environ.get("DB_HOST", "localhost")

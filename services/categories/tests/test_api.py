@@ -3,7 +3,7 @@ import logging
 
 from starlette.testclient import TestClient
 
-from app.main import app
+from old_app.main import app
 
 # TODO: CREATE CI WITH FLAKE8 AND TESTS!
 
@@ -25,7 +25,7 @@ def test_get_all_categories(mocker):
     """Test get all categories functionality."""
     mocked_categories = [MockedCategory(1, "test1"),
                          MockedCategory(1, "test2")]
-    mocker.patch('app.main.get_all_categories', return_value=mocked_categories)
+    mocker.patch('old_app.main.get_all_categories', return_value=mocked_categories)
     response = client.get("/categories")
     assert response.status_code == 200
     categories_response = set(element["name"] for element in response.json())
@@ -36,7 +36,7 @@ def test_get_all_categories(mocker):
 def test_get_not_exist_category(mocker):
     """Test get not exist category functionality."""
     not_existing_category = "not_exist"
-    mocker.patch('app.main.get_categories_by_name', return_value=[])
+    mocker.patch('old_app.main.get_categories_by_name', return_value=[])
     response = client.get(f"/categories?filter={not_existing_category}")
     assert response.status_code == 200
     assert response.json() == []
