@@ -1,8 +1,8 @@
 """Categories REST endpoints."""
 from fastapi import APIRouter
 
-from old_app.db.config import transaction
-from old_app.crud import get_all_categories, get_categories_by_name
+from app.db.config import transaction
+from app.crud import get_all_categories, get_categories_by_name
 
 router = APIRouter()
 

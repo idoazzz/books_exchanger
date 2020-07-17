@@ -4,12 +4,13 @@ version: '3.7'
 services:
   categories_service:
     build: ./services/categories
-    command: alembic upgrade head && uvicorn old_app.main:old_app --reload --host 0.0.0.0 --port 8000
+    command: bash /app/startup.sh
     ports:
       - 8001:8000
     # Dev
     volumes:
-      - ./services/categories:/old_app/
+      - ./services/categories:/app/
+
     environment:
       - DB_NAME=postgres
       - DB_USERNAME=postgres

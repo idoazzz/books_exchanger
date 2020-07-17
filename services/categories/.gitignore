@@ -7,6 +7,8 @@ __pycache__/
 .idea
 .git
 
+.tox
+
 /old_app
 **/data
 

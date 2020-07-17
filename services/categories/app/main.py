@@ -1,4 +1,4 @@
-"""Categories service old_app."""
+"""Categories service app."""
 from typing import List
 
 from fastapi import FastAPI, Depends

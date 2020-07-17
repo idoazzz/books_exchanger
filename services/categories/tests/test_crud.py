@@ -6,10 +6,9 @@ from contextlib2 import contextmanager
 from sqlalchemy.orm import sessionmaker
 from testing.postgresql import Postgresql
 
-from old_app.db.crud import (get_all_categories, get_categories_by_name,
-                             insert_new_category)
-from old_app.db.config import (CATEGORIES_FILE, DB_URL, init_categories,
-                               get_categories_dataset)
+from app.db.config import (init_categories, get_categories_dataset)
+from app.db.crud import (get_all_categories, get_categories_by_name,
+                         insert_new_category)
 
 # Tests logger.
 logger = logging.getLogger()

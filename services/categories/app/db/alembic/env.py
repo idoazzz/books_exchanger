@@ -1,18 +1,28 @@
+import os
 import sys
 from logging.config import fileConfig
+from pathlib import PosixPath
 
 from sqlalchemy import engine_from_config, create_engine
 from sqlalchemy import pool
 
 from alembic import context
 
+import sys
+db_module = PosixPath(__file__).parent.parent
+sys.path.append(str(db_module))
+from tables import Base
+
+# TODO: Remove the duplication (import from config.py).
+DB_NAME = os.environ.get("DB_NAME", "postgres")
+DB_HOST = os.environ.get("DB_HOST", "localhost")
+DB_PASSWORD = os.environ.get("DB_PASSWORD", "postgres")
+DB_USERNAME = os.environ.get("DB_USERNAME", "postgres")
+DB_URL = f"postgresql://{DB_USERNAME}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}"
+
+
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
-import os
-sys.path.append(os.path.abspath(os.path.pardir))
-from db.tables import Base
-from db.config import DB_URL
-
 config = context.config
 
 # Interpret the config file for Python logging.
