@@ -13,7 +13,7 @@ db_module = PosixPath(__file__).parent.parent
 sys.path.append(str(db_module))
 from tables import Base
 
-# TODO: Remove the duplication (import from config.py).
+# TODO: Remove the DB CONFIG duplication (import from config.py).
 DB_NAME = os.environ.get("DB_NAME", "postgres")
 DB_HOST = os.environ.get("DB_HOST", "localhost")
 DB_PASSWORD = os.environ.get("DB_PASSWORD", "postgres")
