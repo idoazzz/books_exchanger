@@ -78,6 +78,7 @@ def search_user_by_id(request_type: UserRequestType, key: str,
     Args:
         key (str): User search key.
         session (Session): DB session.
+        request_type (UserRequestType): Search by email or user id.
 
     Notes:
         Filtering the users with naive contains.
