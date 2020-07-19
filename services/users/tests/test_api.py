@@ -194,3 +194,17 @@ def test_authentication_with_invalid_email():
     for email in fake_user_emails:
         response = client.get(f"/users/email/{email}")
         assert response.status_code == 400
+
+
+# Test /geosearch endpoint.
+
+def test_get_exists_users_by_location(mocker):
+    """Test get exists user by id functionality."""
+    mocked_users = [MockedUser(id, fake.name(), fake.email(),
+                              fake.address(), float(fake.latitude()),
+                              float(fake.longitude())) for id in range(10)]
+    mocker.patch('app.main.get_near_users', return_value=mocked_users)
+    response = client.get(f"/geosearch", longitude=fake.longitude(),
+                          latitude=fake.latitude(), radius=50)
+    assert response.status_code == 200
+    import ipdb; ipdb.set_trace()

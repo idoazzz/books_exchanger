@@ -10,7 +10,7 @@ from .db.config import transaction, engine
 from .schemas import (NewUserRequest, UserResponse, UserRequestType,
                       UserAuthenticationRequest)
 from .db.crud import (add_user, get_user_by_email, get_user_by_id,
-                      is_authenticated_user, delete_user)
+                      is_authenticated_user, delete_user, get_near_users)
 
 Base.metadata.create_all(engine)
 
@@ -127,6 +127,30 @@ def search_user_by_email(email: str, session=Depends(transaction)):
     return UserResponse(id=user.id, email=user.email, name=user.name,
                         address=user.address, latitude=user.latitude,
                         longitude=user.longitude)
+
+
+@app.get("/geosearch", response_model=[UserResponse])
+def search_user_by_email(latitude: float, longitude: float, radius: int,
+                         session=Depends(transaction)):
+    """Get nearest users.
+
+    Args:
+        radius (int): Radius in KM.
+        session (Session): DB session.
+        latitude (float): User location latitude.
+        longitude (float): User location longitude.
+    """
+    if not (-180 < longitude < 180 and -90 < latitude < 90):
+        raise HTTPException(status_code=HTTP_400_BAD_REQUEST,
+                            detail="Illegal latitude or longitude.")
+
+    users = get_near_users(session, latitude, longitude, radius)
+    if not users:
+        raise HTTPException(status_code=HTTP_400_BAD_REQUEST,
+                            detail="User was not found.")
+    return [UserResponse(id=user.id, email=user.email, name=user.name,
+                        address=user.address, latitude=user.latitude,
+                        longitude=user.longitude) for user in users]
 
 
 @app.post("/authenticate_user", status_code=HTTP_200_OK)

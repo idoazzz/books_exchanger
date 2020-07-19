@@ -15,10 +15,17 @@ class NewUserRequest(BaseModel):
     longitude: int
 
 
+class GeosearchRequest(BaseModel):
+    radius: int
+    latitude: int
+    longitude: int
+
+
 class UserAuthenticationRequest(BaseModel):
     """User authentication request."""
     email: str
     password: str
+
 
 class UserResponse(BaseModel):
     id: int
