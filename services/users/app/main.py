@@ -1,5 +1,6 @@
 """Categories service app."""
 import re
+from typing import List
 
 from fastapi import FastAPI, Depends, HTTPException
 from starlette.status import (HTTP_201_CREATED, HTTP_400_BAD_REQUEST,
@@ -129,7 +130,7 @@ def search_user_by_email(email: str, session=Depends(transaction)):
                         longitude=user.longitude)
 
 
-@app.get("/geosearch", response_model=[UserResponse])
+@app.get("/geosearch", response_model=List[UserResponse])
 def search_user_by_email(latitude: float, longitude: float, radius: int,
                          session=Depends(transaction)):
     """Get nearest users.

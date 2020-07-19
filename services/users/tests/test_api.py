@@ -84,7 +84,7 @@ def test_add_invalid_user(mocker):
         assert response.status_code == 400
 
     # Check not matching password.
-    response = send_add_user_request(mocker, 1, fake.name(), email,
+    response = send_add_user_request(mocker, 1, fake.name(), "a@gmail.com",
                                      fake.address(), float(fake.latitude()),
                                      float(fake.longitude()), password,
                                      password2)
@@ -100,7 +100,7 @@ def test_delete_exists_user(mocker):
     password = fake.password()
     mocker.patch('app.main.delete_user', return_value=user_exists)
     delete_request = {'email': email, 'password': password}
-    response = client.delete(f"/delete_user", json=delete_request)
+    response = client.delete("/delete_user", json=delete_request)
     assert response.status_code == 200
 
 
@@ -111,7 +111,7 @@ def test_delete_not_exists_user(mocker):
     password = fake.password()
     mocker.patch('app.main.delete_user', return_value=user_exists)
     delete_request = {'email': email, 'password': password}
-    response = client.delete(f"/delete_user", json=delete_request)
+    response = client.delete("/delete_user", json=delete_request)
     assert response.status_code == 400
 
 
@@ -177,7 +177,7 @@ def test_exists_user_authentication(mocker):
     """Test get not-exists user by id functionality."""
     mocker.patch('app.main.is_authenticated_user', return_value=True)
     fake_user = {'email': fake.email(), 'password': fake.password()}
-    response = client.post(f"/authenticate_user", json=fake_user)
+    response = client.post("/authenticate_user", json=fake_user)
     assert response.status_code == 200
 
 
@@ -204,7 +204,7 @@ def test_get_exists_users_by_location(mocker):
                               fake.address(), float(fake.latitude()),
                               float(fake.longitude())) for id in range(10)]
     mocker.patch('app.main.get_near_users', return_value=mocked_users)
-    response = client.get(f"/geosearch", longitude=fake.longitude(),
-                          latitude=fake.latitude(), radius=50)
+    response = client.get(f"/geosearch", params={"longitude":fake.longitude(),
+                          "latitude":fake.latitude(), "radius":50})
     assert response.status_code == 200
-    import ipdb; ipdb.set_trace()
+    assert response.json() == [user.__dict__ for user in mocked_users]
