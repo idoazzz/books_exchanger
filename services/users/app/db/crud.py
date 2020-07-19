@@ -94,6 +94,7 @@ def add_user(session, password: str, name: str, email: str, address: str,
     session.refresh(new_user)
     return new_user
 
+
 def delete_user(session, email: str, password: str):
     """Check if the user is authenticated.
 
@@ -116,7 +117,6 @@ def delete_user(session, email: str, password: str):
     return True
 
 
-
 def get_near_users(session, latitude: int, longitude: int, radius: int):
     """Get all users in range of radius (KM).
 
@@ -129,7 +129,6 @@ def get_near_users(session, latitude: int, longitude: int, radius: int):
     Returns:
         list. User objects.
     """
-    # TODO: Test!
     users_in_range = session.query(User).filter(func.acos(
         func.sin(func.radians(latitude)) * func.sin(
             func.radians(User.latitude)) + func.cos(
@@ -146,4 +145,3 @@ def get_near_users(session, latitude: int, longitude: int, radius: int):
                     func.radians(longitude)))) * 6371
     ))
     return users_in_range
-

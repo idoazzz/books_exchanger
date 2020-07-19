@@ -10,6 +10,7 @@ class NewUserRequest(BaseModel):
     name: str
     address: str
     password: str
+    password2: str
     latitude: int
     longitude: int
 

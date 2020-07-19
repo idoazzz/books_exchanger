@@ -24,24 +24,95 @@ class MockedUser:
 
 class NewMockedUser(MockedUser):
     def __init__(self, id, name, email, address, latitude, longitude,
-                 password):
+                 password, password2):
         super(NewMockedUser, self).__init__(id, name, email, address, latitude,
                                             longitude)
         self.password = password
+        self.password2 = password2
 
 
 # Test /add_user endpoint.
 
-def test_add_valid_user(mocker):
-    """Test get not-exists user by id functionality."""
-    mocked_user = NewMockedUser(1, fake.name(), fake.email(),
-                             fake.address(), float(fake.latitude()),
-                             float(fake.longitude()), fake.password())
-    mocker.patch('app.main.get_user_by_email', return_value=None)
+def send_add_user_request(mocker, id, name, email, address, latitude,
+                          longitude, password, password2, user_exists=False):
+    """Create mocked user and send add_user request.
+
+    Returns:
+        response (Response). HTTP response.
+    """
+    mocked_user = NewMockedUser(id, name, email, address, latitude,
+                                longitude, password, password2)
+    mocker.patch('app.main.get_user_by_email', return_value=user_exists)
     mocker.patch('app.main.add_user', return_value=mocked_user)
-    response = client.post(f"/add_user", json=mocked_user.__dict__)
+    return client.post(f"/add_user", json=mocked_user.__dict__)
+
+
+def test_add_valid_user(mocker):
+    """Test adding valid user."""
+    password = fake.password()
+    response = send_add_user_request(mocker, 1, fake.name(), fake.email(),
+                                     fake.address(), float(fake.latitude()),
+                                     float(fake.longitude()), password,
+                                     password)
     assert response.status_code == 201
     assert response.json()["user_id"] == 1
+
+
+def test_add_already_exist_user(mocker):
+    """Test adding valid user."""
+    password = fake.password()
+    response = send_add_user_request(mocker, 1, fake.name(), fake.email(),
+                                     fake.address(), float(fake.latitude()),
+                                     float(fake.longitude()), password,
+                                     password, user_exists=True)
+    assert response.status_code == 400
+
+
+def test_add_invalid_user(mocker):
+    """Test adding invalid user (email and password)."""
+    # Invalid password.
+    invalid_emails = ["INVALID_EMAIL", "12311", "idoa@.com", "i@."]
+    password = "FAKE_PASSWORD"
+    password2 = "FAKE_PASSWORD_2"
+
+    for email in invalid_emails:
+        response = send_add_user_request(mocker, 1, fake.name(), email,
+                                         fake.address(),
+                                         float(fake.latitude()),
+                                         float(fake.longitude()), password,
+                                         password)
+        assert response.status_code == 400
+
+    # Check not matching password.
+    response = send_add_user_request(mocker, 1, fake.name(), email,
+                                     fake.address(), float(fake.latitude()),
+                                     float(fake.longitude()), password,
+                                     password2)
+    assert response.status_code == 400
+
+
+# Test /delete_user endpoint.
+
+def test_delete_exists_user(mocker):
+    """Test delete exists user functionality."""
+    user_exists = True
+    email = fake.email()
+    password = fake.password()
+    mocker.patch('app.main.delete_user', return_value=user_exists)
+    delete_request = {'email': email, 'password': password}
+    response = client.delete(f"/delete_user", json=delete_request)
+    assert response.status_code == 200
+
+
+def test_delete_not_exists_user(mocker):
+    """Test delete not exists user functionality."""
+    user_exists = False
+    email = fake.email()
+    password = fake.password()
+    mocker.patch('app.main.delete_user', return_value=user_exists)
+    delete_request = {'email': email, 'password': password}
+    response = client.delete(f"/delete_user", json=delete_request)
+    assert response.status_code == 400
 
 
 # Test /user/ endpoint.

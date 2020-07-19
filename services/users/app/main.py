@@ -1,17 +1,16 @@
 """Categories service app."""
-from typing import List
-from email.utils import parseaddr
+import re
 
 from fastapi import FastAPI, Depends, HTTPException
-from starlette.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST, \
-    HTTP_200_OK
+from starlette.status import (HTTP_201_CREATED, HTTP_400_BAD_REQUEST,
+                              HTTP_200_OK)
 
-from .db.config import transaction, engine
 from .db.tables import Base
-from .schemas import NewUserRequest, UserResponse, UserRequestType, \
-    UserAuthenticationRequest
-from .db.crud import add_user, get_user_by_email, get_user_by_id, \
-    is_authenticated_user
+from .db.config import transaction, engine
+from .schemas import (NewUserRequest, UserResponse, UserRequestType,
+                      UserAuthenticationRequest)
+from .db.crud import (add_user, get_user_by_email, get_user_by_id,
+                      is_authenticated_user, delete_user)
 
 Base.metadata.create_all(engine)
 
@@ -20,7 +19,10 @@ app = FastAPI()
 
 def is_valid_email(email):
     """Validate email."""
-    return '@' in parseaddr(email)[1]
+    regex = r'[\w\.-]+@[\w\.-]+(\.[\w]+)+'
+    if re.search(regex, email):
+        return True
+    return False
 
 
 @app.post("/add_user", status_code=HTTP_201_CREATED)
@@ -35,6 +37,10 @@ def add_new_user(user_data: NewUserRequest, session=Depends(transaction)):
         raise HTTPException(status_code=HTTP_400_BAD_REQUEST,
                             detail="Email is invalid.")
 
+    if user_data.password != user_data.password2:
+        raise HTTPException(status_code=HTTP_400_BAD_REQUEST,
+                            detail="Password are not matching.")
+
     user = get_user_by_email(session, user_data.email)
     if user:
         raise HTTPException(status_code=HTTP_400_BAD_REQUEST,
@@ -43,7 +49,25 @@ def add_new_user(user_data: NewUserRequest, session=Depends(transaction)):
     user = add_user(session, user_data.password, user_data.name,
                     user_data.email,
                     user_data.address, user_data.latitude, user_data.longitude)
-    return {"user_id": 1}
+    return {"user_id": user.id}
+
+
+@app.delete("/delete_user", status_code=HTTP_200_OK)
+def remove_user(user_data: UserAuthenticationRequest,
+                session=Depends(transaction)):
+    """Deleting existing user from DB.
+
+    Args:
+        session (Session): DB Session.
+        user_data (UserAuthenticationRequest): User email and password.
+    """
+    if not is_valid_email(user_data.email):
+        raise HTTPException(status_code=HTTP_400_BAD_REQUEST,
+                            detail="Email is invalid.")
+
+    if not delete_user(session, user_data.email, user_data.password):
+        raise HTTPException(status_code=HTTP_400_BAD_REQUEST,
+                            detail="User is not exists.")
 
 
 @app.get("/users/{request_type}/{key}", response_model=UserResponse)
@@ -120,29 +144,3 @@ def authenticate_user(user_data: UserAuthenticationRequest,
     if not is_authenticated_user(session, user_data.email, user_data.password):
         raise HTTPException(status_code=HTTP_400_BAD_REQUEST,
                             detail="Email or password are wrong.")
-
-# @app.on_event("startup")
-# async def startup_event():
-#     """Initiating DB."""
-#     session = Session()
-#     init_categories(session=session, engine=engine)
-#     session.close()
-#
-#
-# @app.get("/categories", response_model=List[CategoryResponse])
-# def get_categories(filter: str = None, session=Depends(transaction)):
-#     """Get categories from the DB with optional filter.
-#
-#     Args:
-#         session (Session): DB session.
-#         filter (str): Categories name filter.
-#
-#     Notes:
-#         Filtering the categories with naive contains.
-#     """
-#     if filter is not None:
-#         categories = get_categories_by_name(session, filter)
-#     else:
-#         categories = get_all_categories(session)
-#     return [CategoryResponse(id=category.id, name=category.name)
-#             for category in categories]
