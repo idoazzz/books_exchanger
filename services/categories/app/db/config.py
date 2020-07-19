@@ -10,7 +10,7 @@ from .crud import insert_new_category, get_all_categories
 CATEGORIES_FILE = "app/db/categories.txt"
 
 # NOTE: Env.py has duplication.
-DB_NAME = os.environ.get("DB_NAME", "postgres")
+DB_NAME = os.environ.get("DB_NAME", "categories")
 DB_HOST = os.environ.get("DB_HOST", "localhost")
 DB_PASSWORD = os.environ.get("DB_PASSWORD", "postgres")
 DB_USERNAME = os.environ.get("DB_USERNAME", "postgres")

@@ -3,7 +3,7 @@ import hashlib
 
 from sqlalchemy import func, asc
 
-from services.users.app.db.tables import User
+from .tables import User
 
 
 def get_all_users(session):
@@ -21,30 +21,17 @@ def get_all_users(session):
     return session.query(User).all()
 
 
-def get_users_by_name(session, filter: str):
+def get_user_by_id(session, id: int):
     """Get all users that match to specific filter from DB.
 
     Args:
         session (Session): DB session.
-        filter (str): User name filter.
+        id (int): User id.
 
     Returns:
         list. User objects.
     """
-    return session.query(User).filter(User.name.contains(filter)).all()
-
-
-def get_users_by_email(session, filter: str):
-    """Get all users that match to specific filter from DB.
-
-    Args:
-        session (Session): DB session.
-        filter (str): User email filter.
-
-    Returns:
-        list. User objects.
-    """
-    return session.query(User).filter(User.email.contains(filter)).all()
+    return session.query(User).filter_by(id=id).first()
 
 
 def get_user_by_email(session, email: str):
@@ -60,14 +47,84 @@ def get_user_by_email(session, email: str):
     return session.query(User).filter_by(email=email).first()
 
 
+def is_authenticated_user(session, email: str, password: str):
+    """Check if the user is authenticated.
+
+    Args:
+        email (str): User email.
+        session (Session): DB session.
+        password (str): User (not hashed) password.
+
+    Returns:
+        bool. If the user was found.
+    """
+    hashed_password = hashlib.md5(password.encode()).hexdigest()
+    user = session.query(User).filter_by(email=email,
+                                         password=hashed_password).first()
+    return user is None
+
+
+def add_user(session, password: str, name: str, email: str, address: str,
+             latitude: int, longitude: int):
+    """Add new user to the DB.
+
+    Args:
+        email (str): User email.
+        name (str): User full name.
+        session (Session): DB session.
+        address (str): User home address.
+        password (str): User (not hashed) password.
+        latitude (float): User home address latitude.
+        longitude (float): User home address longitude.
+
+    Returns:
+        User. New user object.
+    """
+    hashed_password = hashlib.md5(password.encode()).hexdigest()
+    new_user = User(name=name,
+                    email=email,
+                    address=address,
+                    password=hashed_password,
+                    latitude=latitude,
+                    longitude=longitude)
+
+    session.add(new_user)
+    session.commit()
+    # Retrieving new data like generated id.
+    session.refresh(new_user)
+    return new_user
+
+def delete_user(session, email: str, password: str):
+    """Check if the user is authenticated.
+
+    Args:
+        email (str): User email.
+        session (Session): DB session.
+        password (str): User (not hashed) password.
+
+    Returns:
+        bool. If the user was found and deleted or not.
+    """
+    hashed_password = hashlib.md5(password.encode()).hexdigest()
+    user = session.query(User).filter_by(email=email,
+                                         password=hashed_password).first()
+    if user is None:
+        return False
+
+    session.delete(user)
+    session.commit()
+    return True
+
+
+
 def get_near_users(session, latitude: int, longitude: int, radius: int):
     """Get all users in range of radius (KM).
 
     Args:
         radius (int): Radius in KM.
         session (Session): DB session.
-        latitude (int): User home address latitude.
-        longitude (int): User home address longitude.
+        latitude (float): User home address latitude.
+        longitude (float): User home address longitude.
 
     Returns:
         list. User objects.
@@ -90,73 +147,3 @@ def get_near_users(session, latitude: int, longitude: int, radius: int):
     ))
     return users_in_range
 
-
-def add_user(session, password: str, name: str, email: str, address: str,
-             latitude: int, longitude: int):
-    """Add new user to the DB.
-
-    Args:
-        email (str): User email.
-        name (str): User full name.
-        session (Session): DB session.
-        address (str): User home address.
-        password (str): User (not hashed) password.
-        latitude (int): User home address latitude.
-        longitude (int): User home address longitude.
-
-    Returns:
-        User. New user object.
-    """
-    # TODO: Test!
-    hashed_password = hashlib.md5(password.encode()).hexdigest()
-    new_user = User(name=name,
-                    email=email,
-                    address=address,
-                    password=hashed_password,
-                    latitude=latitude,
-                    longitude=longitude)
-
-    session.add(new_user)
-    session.commit()
-    # Retrieving new data like generated id.
-    session.refresh(new_user)
-    return new_user
-
-
-def is_authenticated_user(session, email: str, password: str):
-    """Check if the user is authenticated.
-
-    Args:
-        email (str): User email.
-        session (Session): DB session.
-        password (str): User (not hashed) password.
-
-    Returns:
-        bool. If the user was found.
-    """
-    hashed_password = hashlib.md5(password.encode()).hexdigest()
-    user = session.query(User).filter_by(email=email,
-                                         password=hashed_password).first()
-    return user is None
-
-
-def delete_user(session, email: str, password: str):
-    """Check if the user is authenticated.
-
-    Args:
-        email (str): User email.
-        session (Session): DB session.
-        password (str): User (not hashed) password.
-
-    Returns:
-        bool. If the user was found and deleted or not.
-    """
-    hashed_password = hashlib.md5(password.encode()).hexdigest()
-    user = session.query(User).filter_by(email=email,
-                                         password=hashed_password).first()
-    if user is None:
-        return False
-
-    session.delete(user)
-    session.commit()
-    return True

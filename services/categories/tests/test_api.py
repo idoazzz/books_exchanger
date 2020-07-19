@@ -5,10 +5,6 @@ from starlette.testclient import TestClient
 
 from app.main import app
 
-# Tests logger.
-logger = logging.getLogger()
-logging.basicConfig(level=logging.DEBUG)
-
 client = TestClient(app)
 
 
@@ -22,7 +18,7 @@ class MockedCategory:
 def test_get_all_categories(mocker):
     """Test get all categories functionality."""
     mocked_categories = [MockedCategory(1, "test1"),
-                         MockedCategory(1, "test2")]
+                         MockedCategory(2, "test2")]
     mocker.patch('app.main.get_all_categories', return_value=mocked_categories)
     response = client.get("/categories")
     assert response.status_code == 200
