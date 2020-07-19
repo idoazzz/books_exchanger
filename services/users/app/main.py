@@ -47,9 +47,9 @@ def add_new_user(user_data: NewUserRequest, session=Depends(transaction)):
         raise HTTPException(status_code=HTTP_400_BAD_REQUEST,
                             detail="Email is already taken.")
 
-    user = add_user(session, user_data.password, user_data.name,
-                    user_data.email,
-                    user_data.address, user_data.latitude, user_data.longitude)
+    user = add_user(session, user_data.name, user_data.email,
+                    user_data.password, user_data.address,
+                    user_data.latitude, user_data.longitude)
     return {"user_id": user.id}
 
 
@@ -170,3 +170,7 @@ def authenticate_user(user_data: UserAuthenticationRequest,
     if not is_authenticated_user(session, user_data.email, user_data.password):
         raise HTTPException(status_code=HTTP_400_BAD_REQUEST,
                             detail="Email or password are wrong.")
+
+
+# TODO: ADD CATEGORIES TO USER
+# TODO: Validate input lengths like password and names.

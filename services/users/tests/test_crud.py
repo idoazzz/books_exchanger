@@ -1,20 +1,22 @@
 """Testing CRUD calls."""
 import logging
 
+from faker import Faker
+
+from app.db.tables import Base
 from sqlalchemy import create_engine
 from contextlib2 import contextmanager
 from sqlalchemy.orm import sessionmaker
 from testing.postgresql import Postgresql
-
-from app.db.config import (init_categories, get_categories_dataset)
-from app.db.crud import (get_all_categories, get_categories_by_name,
-                         insert_new_category)
+from app.db.crud import (get_near_users, add_user, get_all_users, delete_user,
+                         get_user_by_id)
 
 # Tests logger.
 logger = logging.getLogger()
 logging.basicConfig(level=logging.DEBUG)
 
 # Startup test db.
+fake = Faker()
 temp_test_db = Postgresql()
 engine = create_engine(temp_test_db.url(), echo=True)
 MockedSession = sessionmaker(bind=engine)
@@ -42,9 +44,8 @@ def setup_module():
     Notes:
         Startup function.
     """
-    with mocked_transaction() as session:
-        init_categories(session=session, engine=engine)
-        logger.info("Tests temp db was initiated")
+    Base.metadata.create_all(engine)
+    logger.info("Tests temp db was initiated")
 
 
 def teardown_module():
@@ -57,41 +58,86 @@ def teardown_module():
     logger.info("Tests temp db was stopped")
 
 
-def test_get_all_categories():
-    """Test getting all categories functionality."""
+def test_delete_exists_user():
+    """Test deleting user."""
     with mocked_transaction() as session:
-        categories = get_all_categories(session)
-    categories_names = set(element.name for element in categories)
-    expected_categories = get_categories_dataset()
-    assert categories_names == expected_categories
+        user = add_user(session, fake.name(), fake.email(), fake.password(),
+                        fake.address(), fake.latitude(), fake.longitude())
+        assert user is not None
+        assert get_user_by_id(session, user.id) is not None
+        assert delete_user(session, user.email, user.password) == True
+        assert get_user_by_id(session, user.id) is None
 
 
-def test_get_not_exist_category():
-    """Test getting not exist category functionality."""
+def test_delete_not_exists_user():
+    """Test deleting user."""
+    pass
+
+
+def test_add_new_user():
+    """Test adding new user."""
+    pass
+
+
+def test_authenticate_user():
+    """Test user authentication."""
+    pass
+
+
+def test_get_exist_user_by_email():
+    """Test search exists user by email."""
+    pass
+
+
+def test_get_not_exist_user_by_email():
+    """Test search not exists user by email."""
+    pass
+
+
+def test_get_exist_user_by_id():
+    """Test search exists user by email."""
+    pass
+
+
+def test_get_not_exist_user_by_id():
+    """Test search not exists user by email."""
+    pass
+
+
+def test_add_new_category_to_user():
+    """Test adding new category to user."""
+    pass
+
+
+def test_get_near_users():
+    """Test getting all nearby result_users functionality."""
+    RADIUS = 2  # KM
+    base_coordinates = (32.852310, 35.096149)  # BASE
+    in_range_coordinates = [(32.853418, 35.092406),  # 0.37 KM
+                            (32.852408, 35.090430),  # 0.54 KM
+                            (32.845414, 35.078663),  # 1.81 KM
+                            (32.842025, 35.105976),  # 1.47 KM
+                            (32.841159, 35.079529)]  # 1.99 KM
+    out_of_range_coordinates = [(32.834380, 35.103056),  # 2.09 KM
+                                (32.832722, 35.081751),  # 2.56 KM
+                                (32.838491, 35.076007),  # 2.43 KM
+                                (32.838491, 35.076007),  # 4.72 KM
+                                (32.840005, 35.069641)]  # 2.83 KM
     with mocked_transaction() as session:
-        categories = get_categories_by_name(session, "not_exist_category")
-    assert categories == []
+        in_range_users = [add_user(session, fake.name(), fake.email(),
+                                   fake.password(), fake.address(),
+                                   coordinate[0], coordinate[1])
+                          for coordinate in in_range_coordinates]
 
+        for coordinate in out_of_range_coordinates:
+            add_user(session, fake.name(), fake.email(), fake.password(),
+                     fake.address(), coordinate[0], coordinate[1])
 
-def test_adding_new_category():
-    """Test adding new category functionality."""
-    tested_category = "test_category"
+        # Check that users was added.
+        assert len(get_all_users(session)) == len(out_of_range_coordinates) + \
+               len(in_range_users)
 
-    with mocked_transaction() as session:
-        insert_new_category(session, tested_category)
-        categories = get_categories_by_name(session, filter=tested_category)
-        assert [category.name for category in categories] == [tested_category]
-
-
-def test_get_existing_category():
-    """Test getting existing category functionality."""
-    tested_category = "test_category"
-    tested_filter = "test_"
-
-    with mocked_transaction() as session:
-        insert_new_category(session, tested_category)
-        categories = get_categories_by_name(session, filter=tested_category)
-        assert [category.name for category in categories] == [tested_category]
-        # Testing filter
-        categories = get_categories_by_name(session, filter=tested_filter)
-        assert [category.name for category in categories] == [tested_category]
+        result_users = get_near_users(session, latitude=base_coordinates[0],
+                                      longitude=base_coordinates[1],
+                                      radius=RADIUS)
+    assert set(result_users) == set(in_range_users)

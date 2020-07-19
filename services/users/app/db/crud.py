@@ -64,7 +64,7 @@ def is_authenticated_user(session, email: str, password: str):
     return user is None
 
 
-def add_user(session, password: str, name: str, email: str, address: str,
+def add_user(session, name: str, email: str, password: str, address: str,
              latitude: int, longitude: int):
     """Add new user to the DB.
 
@@ -129,7 +129,6 @@ def get_near_users(session, latitude: float, longitude: float, radius: int):
     Returns:
         list. User objects.
     """
-    # TODO: TEST!!!
     users_in_range = session.query(User).filter(func.acos(
         func.sin(func.radians(latitude)) * func.sin(
             func.radians(User.latitude)) + func.cos(
@@ -144,5 +143,7 @@ def get_near_users(session, latitude: float, longitude: float, radius: int):
                 func.radians(User.latitude)) * func.cos(
                 func.radians(User.longitude) - (
                     func.radians(longitude)))) * 6371
-    ))
+    )).all()
     return users_in_range
+
+# TODO: ADD CATEGORIES TO USER
