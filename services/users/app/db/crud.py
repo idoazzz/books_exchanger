@@ -22,7 +22,7 @@ def get_all_users(session):
 
 
 def get_user_by_id(session, id: int):
-    """Get all users that match to specific filter from DB.
+    """Get all users that match to specific id from DB.
 
     Args:
         session (Session): DB session.
@@ -97,7 +97,7 @@ def add_user(session, name: str, email: str, password: str, address: str,
 
 
 def delete_user(session, email: str, password: str):
-    """Check if the user is authenticated.
+    """Delete specific user.
 
     Args:
         email (str): User email.
@@ -149,7 +149,7 @@ def get_near_users(session, latitude: float, longitude: float, radius: int):
 
 
 def update_categories_to_user(session, user_id, categories_ids):
-    """Add categories to specific user.
+    """Update categories to specific user.
 
     Args:
         user_id (int): User id.

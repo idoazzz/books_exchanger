@@ -1,6 +1,4 @@
 """Testing API calls."""
-import logging
-
 from faker import Faker
 from starlette.testclient import TestClient
 

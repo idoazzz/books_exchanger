@@ -1,4 +1,4 @@
-"""Categories API endpoints models."""
+"""Users API endpoints models."""
 from enum import Enum
 
 from pydantic import BaseModel

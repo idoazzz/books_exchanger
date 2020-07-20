@@ -1,4 +1,4 @@
-"""Categories service app."""
+"""Users service app."""
 import re
 from typing import List
 
@@ -21,7 +21,7 @@ app = FastAPI()
 
 
 def is_valid_email(email):
-    """Validate email."""
+    """Check if it is valid email."""
     regex = r'[\w\.-]+@[\w\.-]+(\.[\w]+)+'
     if re.search(regex, email):
         return True
@@ -76,7 +76,7 @@ def remove_user(user_data: UserAuthenticationRequest,
 @app.get("/users/{request_type}/{key}", response_model=UserResponse)
 def search_user_by_id(request_type: UserRequestType, key: str,
                       session=Depends(transaction)):
-    """Get users from the db with optional filter.
+    """Get users from the db.
 
     Args:
         key (str): User search key.
@@ -114,7 +114,7 @@ def search_user_by_id(request_type: UserRequestType, key: str,
 
 @app.get("/users/{email}", response_model=UserResponse)
 def search_user_by_email(email: str, session=Depends(transaction)):
-    """Get users from the db with optional filter.
+    """Get users from the db.
 
     Args:
         email (str): User email.
