@@ -187,7 +187,7 @@ def update_user_categories(user_data: UserCategoriesRequest,
     if not user:
         raise HTTPException(status_code=HTTP_400_BAD_REQUEST,
                             detail="User was not found.")
-    update_categories_to_user(user_data.id, user_data.category_ids)
+    update_categories_to_user(session, user_data.id, user_data.category_ids)
 
 
 @app.get("/user_categories/{id}", status_code=HTTP_200_OK)

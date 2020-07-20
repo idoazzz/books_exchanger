@@ -10,7 +10,8 @@ services:
     # Dev
     volumes:
       - ./services/categories:/app/
-
+    depends_on:
+      - categories_db
     environment:
       - DB_NAME=categories
       - DB_USERNAME=postgres
@@ -33,8 +34,9 @@ services:
       - 8002:8000
     # Dev
     volumes:
-      - ./services/services:/app/
-
+      - ./services/users:/app/
+    depends_on:
+      - users_db
     environment:
       - DB_NAME=users
       - DB_USERNAME=postgres
@@ -44,7 +46,7 @@ services:
   users_db:
     image: postgres:12.1-alpine
     volumes:
-      - ./services/categories/data/:/var/lib/postgresql/data/
+      - ./services/users/data/:/var/lib/postgresql/data/
     environment:
       - POSTGRES_DB=users
       - POSTGRES_USER=postgres
