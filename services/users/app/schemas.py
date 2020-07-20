@@ -21,6 +21,11 @@ class GeosearchRequest(BaseModel):
     longitude: int
 
 
+class UserCategoriesRequest(BaseModel):
+    id: int
+    category_ids: list
+
+
 class UserAuthenticationRequest(BaseModel):
     """User authentication request."""
     email: str
@@ -39,3 +44,7 @@ class UserResponse(BaseModel):
 class UserRequestType(str, Enum):
     id = "id"
     email = "email"
+
+
+class CategoryResponse(BaseModel):
+    id: int

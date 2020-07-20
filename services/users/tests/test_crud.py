@@ -10,7 +10,7 @@ from sqlalchemy.orm import sessionmaker
 from testing.postgresql import Postgresql
 from app.db.crud import (get_near_users, add_user, get_all_users, delete_user,
                          get_user_by_id, is_authenticated_user,
-                         get_user_by_email)
+                         get_user_by_email, update_categories_to_user)
 
 # Tests logger.
 logger = logging.getLogger()
@@ -147,11 +147,6 @@ def test_get_not_exist_user_by_id():
         assert get_user_by_id(session, id) is None
 
 
-def test_add_new_category_to_user():
-    """Test adding new category to user."""
-    pass
-
-
 def test_get_near_users():
     """Test getting all nearby result_users functionality."""
     RADIUS = 2  # KM
@@ -184,3 +179,15 @@ def test_get_near_users():
                                       longitude=base_coordinates[1],
                                       radius=RADIUS)
     assert set(result_users) == set(in_range_users)
+
+
+def test_update_user_categories():
+    """Test update user categories."""
+    categories_ids = [1,2,3,4,5,48,201]
+    with mocked_transaction() as session:
+        user = add_user(session, fake.name(), fake.email(), fake.password(),
+                        fake.address(), fake.latitude(), fake.longitude())
+        assert user is not None
+        update_categories_to_user(session, user.id, categories_ids)
+        user = get_user_by_id(session, user.id)
+        assert user.categories_ids == categories_ids

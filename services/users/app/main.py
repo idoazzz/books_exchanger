@@ -9,7 +9,8 @@ from starlette.status import (HTTP_201_CREATED, HTTP_400_BAD_REQUEST,
 from .db.tables import Base
 from .db.config import transaction, engine
 from .schemas import (NewUserRequest, UserResponse, UserRequestType,
-                      UserAuthenticationRequest)
+                      UserAuthenticationRequest, UserCategoriesRequest,
+                      CategoryResponse)
 from .db.crud import (add_user, get_user_by_email, get_user_by_id,
                       is_authenticated_user, delete_user, get_near_users)
 
@@ -150,8 +151,8 @@ def search_user_by_email(latitude: float, longitude: float, radius: int,
         raise HTTPException(status_code=HTTP_400_BAD_REQUEST,
                             detail="User was not found.")
     return [UserResponse(id=user.id, email=user.email, name=user.name,
-                        address=user.address, latitude=user.latitude,
-                        longitude=user.longitude) for user in users]
+                         address=user.address, latitude=user.latitude,
+                         longitude=user.longitude) for user in users]
 
 
 @app.post("/authenticate_user", status_code=HTTP_200_OK)
@@ -172,5 +173,31 @@ def authenticate_user(user_data: UserAuthenticationRequest,
                             detail="Email or password are wrong.")
 
 
-# TODO: ADD CATEGORIES TO USER
+@app.put("/update_user_categories", status_code=HTTP_200_OK)
+def update_user_categories(user_data: UserCategoriesRequest,
+                           session=Depends(transaction)):
+    """Update user categories..
+
+    Args:
+        session (Session): DB session.
+        user_data (UserCategoriesRequest): User categories.
+    """
+    pass
+
+
+@app.get("/user_categories/{id}", status_code=HTTP_200_OK)
+def get_user_categories(id: int, session=Depends(transaction)):
+    """Get user categories.
+
+    Args:
+        id (int): User id.
+        session (Session): DB session.
+    """
+    user = get_user_by_id(session, id)
+    if not user:
+        raise HTTPException(status_code=HTTP_400_BAD_REQUEST,
+                            detail="User was not found.")
+    return [CategoryResponse(id=category_id) for category_id in
+            user.categories_ids]
+
 # TODO: Validate input lengths like password and names.

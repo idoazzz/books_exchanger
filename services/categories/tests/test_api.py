@@ -10,6 +10,7 @@ client = TestClient(app)
 
 class MockedCategory:
     """Mocked category object."""
+
     def __init__(self, id, name):
         self.id = id
         self.name = name
@@ -27,10 +28,26 @@ def test_get_all_categories(mocker):
     assert categories_response == expected_categories
 
 
-def test_get_not_exist_category(mocker):
-    """Test get not exist category functionality."""
+def test_get_not_exists_category(mocker):
+    """Test get not exists category (name search) functionality."""
     not_existing_category = "not_exist"
     mocker.patch('app.main.get_categories_by_name', return_value=[])
     response = client.get(f"/categories?filter={not_existing_category}")
     assert response.status_code == 200
     assert response.json() == []
+
+
+def test_get_not_exists_category_by_id(mocker):
+    """Test get not exists category (id search) functionality."""
+    mocker.patch('app.main.get_categories_by_id', return_value=None)
+    response = client.get(f"/category/1")
+    assert response.status_code == 404
+
+
+def test_get_exists_category_by_id(mocker):
+    """Test ge exists category (id search) functionality."""
+    mocked_category = MockedCategory(1, "test1")
+    mocker.patch('app.main.get_categories_by_id', return_value=mocked_category)
+    response = client.get(f"/category/1")
+    assert response.status_code == 200
+    assert response.json() == mocked_category.__dict__

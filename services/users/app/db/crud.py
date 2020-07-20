@@ -86,7 +86,8 @@ def add_user(session, name: str, email: str, password: str, address: str,
                     address=address,
                     password=hashed_password,
                     latitude=latitude,
-                    longitude=longitude)
+                    longitude=longitude,
+                    categories_ids=[])
 
     session.add(new_user)
     session.commit()
@@ -146,4 +147,15 @@ def get_near_users(session, latitude: float, longitude: float, radius: int):
     )).all()
     return users_in_range
 
-# TODO: ADD CATEGORIES TO USER
+
+def update_categories_to_user(session, user_id, categories_ids):
+    """Add categories to specific user.
+
+    Args:
+        user_id (int): User id.
+        session (Session): DB session.
+        categories_ids (list): Categories ids.
+    """
+    session.query(User).filter(User.id == user_id).update(
+        {'categories_ids': categories_ids})
+    session.commit()
