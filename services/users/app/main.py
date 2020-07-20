@@ -12,7 +12,8 @@ from .schemas import (NewUserRequest, UserResponse, UserRequestType,
                       UserAuthenticationRequest, UserCategoriesRequest,
                       CategoryResponse)
 from .db.crud import (add_user, get_user_by_email, get_user_by_id,
-                      is_authenticated_user, delete_user, get_near_users)
+                      is_authenticated_user, delete_user, get_near_users,
+                      update_categories_to_user)
 
 Base.metadata.create_all(engine)
 
@@ -182,7 +183,11 @@ def update_user_categories(user_data: UserCategoriesRequest,
         session (Session): DB session.
         user_data (UserCategoriesRequest): User categories.
     """
-    pass
+    user = get_user_by_id(session, user_data.id)
+    if not user:
+        raise HTTPException(status_code=HTTP_400_BAD_REQUEST,
+                            detail="User was not found.")
+    update_categories_to_user(user_data.id, user_data.category_ids)
 
 
 @app.get("/user_categories/{id}", status_code=HTTP_200_OK)
@@ -199,5 +204,3 @@ def get_user_categories(id: int, session=Depends(transaction)):
                             detail="User was not found.")
     return [CategoryResponse(id=category_id) for category_id in
             user.categories_ids]
-
-# TODO: Validate input lengths like password and names.

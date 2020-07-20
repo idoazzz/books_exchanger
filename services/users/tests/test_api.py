@@ -209,8 +209,3 @@ def test_get_exists_users_by_location(mocker):
                                                  "radius": 50})
     assert response.status_code == 200
     assert response.json() == [user.__dict__ for user in mocked_users]
-
-
-# Test /add_user_categories
-def test_add_user_categories():
-    pass
