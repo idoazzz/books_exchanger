@@ -61,7 +61,7 @@ def is_authenticated_user(session, email: str, password: str):
     hashed_password = hashlib.md5(password.encode()).hexdigest()
     user = session.query(User).filter_by(email=email,
                                          password=hashed_password).first()
-    return user is None
+    return user is not None
 
 
 def add_user(session, name: str, email: str, password: str, address: str,

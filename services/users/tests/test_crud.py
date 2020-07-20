@@ -9,7 +9,8 @@ from contextlib2 import contextmanager
 from sqlalchemy.orm import sessionmaker
 from testing.postgresql import Postgresql
 from app.db.crud import (get_near_users, add_user, get_all_users, delete_user,
-                         get_user_by_id)
+                         get_user_by_id, is_authenticated_user,
+                         get_user_by_email)
 
 # Tests logger.
 logger = logging.getLogger()
@@ -38,12 +39,13 @@ def mocked_transaction():
         s.close()
 
 
-def setup_module():
-    """Initiating tests temp db.
+def setup_function():
+    """Initiating tests temp db in each test.
 
     Notes:
         Startup function.
     """
+    Base.metadata.drop_all(engine)
     Base.metadata.create_all(engine)
     logger.info("Tests temp db was initiated")
 
@@ -55,53 +57,94 @@ def teardown_module():
         Teardown function.
     """
     temp_test_db.stop()
-    logger.info("Tests temp db was stopped")
+    logger.info("Tests temp db was stopped and deleted")
 
 
 def test_delete_exists_user():
     """Test deleting user."""
     with mocked_transaction() as session:
-        user = add_user(session, fake.name(), fake.email(), fake.password(),
-                        fake.address(), fake.latitude(), fake.longitude())
+        not_hashed_password = fake.password()
+        user = add_user(session, fake.name(), fake.email(),
+                        not_hashed_password, fake.address(), fake.latitude(),
+                        fake.longitude())
         assert user is not None
-        assert get_user_by_id(session, user.id) is not None
-        assert delete_user(session, user.email, user.password) == True
+        assert delete_user(session, user.email, not_hashed_password) == True
         assert get_user_by_id(session, user.id) is None
 
 
 def test_delete_not_exists_user():
     """Test deleting user."""
-    pass
+    with mocked_transaction() as session:
+        not_hashed_password = "password"
+        not_existing_user = "not_existing_user"
+        assert is_authenticated_user(session, not_existing_user,
+                                     not_hashed_password) == False
+        assert delete_user(session, not_existing_user,
+                           not_hashed_password) == False
 
 
 def test_add_new_user():
     """Test adding new user."""
-    pass
+    with mocked_transaction() as session:
+        user = add_user(session, fake.name(), fake.email(), fake.password(),
+                        fake.address(), fake.latitude(), fake.longitude())
+        assert user is not None
+        assert get_user_by_id(session, user.id) is not None
 
 
 def test_authenticate_user():
     """Test user authentication."""
-    pass
+    with mocked_transaction() as session:
+        not_hashed_password = fake.password()
+        user = add_user(session, fake.name(), fake.email(),
+                        not_hashed_password, fake.address(), fake.latitude(),
+                        fake.longitude())
+        assert user is not None
+        assert is_authenticated_user(session, user.email, not_hashed_password) \
+               is True
+
+
+def test_authenticate_invalid_user():
+    """Test invalid user authentication."""
+    password = "password"
+    not_existing_user = "not_existing_user"
+    with mocked_transaction() as session:
+        assert is_authenticated_user(session, not_existing_user, password) \
+               is False
 
 
 def test_get_exist_user_by_email():
     """Test search exists user by email."""
-    pass
+    email = fake.email()
+    with mocked_transaction() as session:
+        assert get_user_by_email(session, email) is None
+        user = add_user(session, fake.name(), email, fake.password(),
+                        fake.address(), fake.latitude(), fake.longitude())
+        assert user is not None
+        assert get_user_by_email(session, user.email) is not None
 
 
 def test_get_not_exist_user_by_email():
     """Test search not exists user by email."""
-    pass
+    email = "not_existing_email"
+    with mocked_transaction() as session:
+        assert get_user_by_email(session, email) is None
 
 
 def test_get_exist_user_by_id():
     """Test search exists user by email."""
-    pass
+    with mocked_transaction() as session:
+        user = add_user(session, fake.name(), fake.email(), fake.password(),
+                        fake.address(), fake.latitude(), fake.longitude())
+        assert user is not None
+        assert get_user_by_id(session, user.id) is not None
 
 
 def test_get_not_exist_user_by_id():
     """Test search not exists user by email."""
-    pass
+    id = -1  # not_existing_id
+    with mocked_transaction() as session:
+        assert get_user_by_id(session, id) is None
 
 
 def test_add_new_category_to_user():
@@ -135,7 +178,7 @@ def test_get_near_users():
 
         # Check that users was added.
         assert len(get_all_users(session)) == len(out_of_range_coordinates) + \
-               len(in_range_users)
+               len(in_range_coordinates)
 
         result_users = get_near_users(session, latitude=base_coordinates[0],
                                       longitude=base_coordinates[1],
