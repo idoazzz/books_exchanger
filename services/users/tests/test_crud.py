@@ -68,7 +68,7 @@ def test_delete_exists_user():
                         not_hashed_password, fake.address(), fake.latitude(),
                         fake.longitude())
         assert user is not None
-        assert delete_user(session, user.email, not_hashed_password) == True
+        assert delete_user(session, user.email, not_hashed_password)
         assert get_user_by_id(session, user.id) is None
 
 
@@ -77,10 +77,10 @@ def test_delete_not_exists_user():
     with mocked_transaction() as session:
         not_hashed_password = "password"
         not_existing_user = "not_existing_user"
-        assert is_authenticated_user(session, not_existing_user,
-                                     not_hashed_password) == False
-        assert delete_user(session, not_existing_user,
-                           not_hashed_password) == False
+        assert not is_authenticated_user(session, not_existing_user,
+                                         not_hashed_password)
+        assert not delete_user(session, not_existing_user,
+                               not_hashed_password)
 
 
 def test_add_new_user():
@@ -100,8 +100,7 @@ def test_authenticate_user():
                         not_hashed_password, fake.address(), fake.latitude(),
                         fake.longitude())
         assert user is not None
-        assert is_authenticated_user(session, user.email, not_hashed_password) \
-               is True
+        assert is_authenticated_user(session, user.email, not_hashed_password)
 
 
 def test_authenticate_invalid_user():
@@ -109,8 +108,7 @@ def test_authenticate_invalid_user():
     password = "password"
     not_existing_user = "not_existing_user"
     with mocked_transaction() as session:
-        assert is_authenticated_user(session, not_existing_user, password) \
-               is False
+        assert not is_authenticated_user(session, not_existing_user, password)
 
 
 def test_get_exist_user_by_email():
@@ -183,7 +181,8 @@ def test_get_near_users():
 
 def test_update_user_categories():
     """Test update user categories."""
-    categories_ids = [1,2,3,4,5,48,201]
+    categories_ids = [1, 2, 3, 4, 5, 48, 201]
+
     with mocked_transaction() as session:
         user = add_user(session, fake.name(), fake.email(), fake.password(),
                         fake.address(), fake.latitude(), fake.longitude())

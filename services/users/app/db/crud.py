@@ -1,7 +1,7 @@
 """Users CRUD db operations."""
 import hashlib
 
-from sqlalchemy import func, asc
+from sqlalchemy import asc
 
 from .tables import User
 
@@ -118,6 +118,32 @@ def delete_user(session, email: str, password: str):
     return True
 
 
+def _get_distance(base_latitude, base_longitude, target_latitude,
+                  target_longitude, logger=None):
+    """Get distance between two coordinates.
+
+    Notes:
+        Debugging function.
+    """
+    from math import sin, cos, sqrt, atan2, radians
+
+    if logger:
+        logger.debug("Calculating distance between (%f, %f), (%f, %f)",
+                     base_latitude, base_longitude, target_latitude,
+                     target_longitude)
+
+    R = 6373.0  # approximate radius of earth in km
+    lat1 = radians(base_latitude)
+    lon1 = radians(base_longitude)
+    lat2 = radians(target_latitude)
+    lon2 = radians(target_longitude)
+    dlon = lon2 - lon1
+    dlat = lat2 - lat1
+    a = sin(dlat / 2) ** 2 + cos(lat1) * cos(lat2) * sin(dlon / 2) ** 2
+    c = 2 * atan2(sqrt(a), sqrt(1 - a))
+    return R * c
+
+
 def get_near_users(session, latitude: float, longitude: float, radius: int):
     """Get all users in range of radius (KM).
 
@@ -130,21 +156,9 @@ def get_near_users(session, latitude: float, longitude: float, radius: int):
     Returns:
         list. User objects.
     """
-    users_in_range = session.query(User).filter(func.acos(
-        func.sin(func.radians(latitude)) * func.sin(
-            func.radians(User.latitude)) + func.cos(
-            func.radians(latitude)) * func.cos(
-            func.radians(User.latitude)) * func.cos(
-            func.radians(User.longitude) - (
-                func.radians(longitude)))) * 6371 <= radius).order_by(asc(
-        func.acos(
-            func.sin(func.radians(latitude)) * func.sin(
-                func.radians(User.latitude)) + func.cos(
-                func.radians(latitude)) * func.cos(
-                func.radians(User.latitude)) * func.cos(
-                func.radians(User.longitude) - (
-                    func.radians(longitude)))) * 6371
-    )).all()
+    users_in_range = session.query(User).filter(
+        User.in_range(latitude, longitude, radius) <=
+        radius).order_by(asc(User.in_range(latitude, longitude, radius))).all()
     return users_in_range
 
 

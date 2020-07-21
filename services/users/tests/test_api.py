@@ -42,7 +42,7 @@ def send_add_user_request(mocker, id, name, email, address, latitude,
                                 longitude, password, password2)
     mocker.patch('app.main.get_user_by_email', return_value=user_exists)
     mocker.patch('app.main.add_user', return_value=mocked_user)
-    return client.post(f"/add_user", json=mocked_user.__dict__)
+    return client.post("/add_user", json=mocked_user.__dict__)
 
 
 def test_add_valid_user(mocker):
@@ -202,8 +202,9 @@ def test_get_exists_users_by_location(mocker):
                                fake.address(), float(fake.latitude()),
                                float(fake.longitude())) for id in range(10)]
     mocker.patch('app.main.get_near_users', return_value=mocked_users)
-    response = client.get(f"/geosearch", params={"longitude": fake.longitude(),
-                                                 "latitude": fake.latitude(),
-                                                 "radius": 50})
+    response = client.get("/geosearch",
+                          params={"longitude": fake.longitude(),
+                                  "latitude": fake.latitude(),
+                                  "radius": 50})
     assert response.status_code == 200
     assert response.json() == [user.__dict__ for user in mocked_users]

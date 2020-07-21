@@ -24,10 +24,10 @@ jobs:
         pip install tox
     - name: Run tox on categories service
       run: |
-        tox -c services/categories/tox.ini
+        tox -c services/categories/tox.ini --recreate
         tox -c services/categories/tox.ini -e flake8
 
     - name: Run tox on users service
       run: |
-        tox -c services/users/tox.ini
+        tox -c services/users/tox.ini --recreate
         tox -c services/users/tox.ini -e flake8
