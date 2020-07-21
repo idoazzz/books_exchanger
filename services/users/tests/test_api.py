@@ -165,8 +165,7 @@ def test_get_type_user_by_invalid_email():
     """Test get user with illegal id functionality."""
     for email in invalid_emails:
         response = client.get(f"/users/email/{email}")
-        import ipdb; ipdb.set_trace()
-        assert response.status_code == 404
+        assert response.status_code == 400
 
 
 # Test /authenticate_user endpoint.
