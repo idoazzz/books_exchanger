@@ -15,9 +15,14 @@ from .db.crud import (add_user, get_user_by_email, get_user_by_id,
                       is_authenticated_user, delete_user, get_near_users,
                       update_categories_to_user)
 
-Base.metadata.create_all(engine)
 
 app = FastAPI()
+
+
+@app.on_event("startup")
+async def startup_event():
+    """Initiating DB."""
+    Base.metadata.create_all(engine)
 
 
 def is_valid_email(email):
