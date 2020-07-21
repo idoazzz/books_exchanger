@@ -41,7 +41,7 @@ def test_get_not_exists_category_by_id(mocker):
     """Test get not exists category (id search) functionality."""
     mocker.patch('app.main.get_categories_by_id', return_value=None)
     response = client.get(f"/category/1")
-    assert response.status_code == 404
+    assert response.status_code == 400
 
 
 def test_get_exists_category_by_id(mocker):
