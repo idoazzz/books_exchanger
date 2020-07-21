@@ -79,8 +79,8 @@ def remove_user(user_data: UserAuthenticationRequest,
 
 
 @app.get("/users/{request_type}/{key}", response_model=UserResponse)
-def search_user_by_id(request_type: UserRequestType, key: str,
-                      session=Depends(transaction)):
+def search_user(request_type: UserRequestType, key: str,
+                session=Depends(transaction)):
     """Get users from the db.
 
     Args:
