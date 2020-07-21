@@ -14,7 +14,7 @@ sys.path.append(str(db_module))
 from tables import Base
 
 # TODO: Remove the DB CONFIG duplication (import from config.py).
-DB_NAME = os.environ.get("DB_NAME", "categories")
+DB_NAME = os.environ.get("DB_NAME", "users")
 DB_HOST = os.environ.get("DB_HOST", "localhost")
 DB_PASSWORD = os.environ.get("DB_PASSWORD", "postgres")
 DB_USERNAME = os.environ.get("DB_USERNAME", "postgres")

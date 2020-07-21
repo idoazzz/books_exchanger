@@ -10,9 +10,10 @@ services:
     # Dev
     volumes:
       - ./services/categories:/app/
-
+    depends_on:
+      - categories_db
     environment:
-      - DB_NAME=postgres
+      - DB_NAME=categories
       - DB_USERNAME=postgres
       - DB_PASSWORD=postgres
       - DB_HOST=categories_db
@@ -22,6 +23,31 @@ services:
     volumes:
       - ./services/categories/data/:/var/lib/postgresql/data/
     environment:
-      - POSTGRES_DB=postgres
+      - POSTGRES_DB=categories
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+
+  users_service:
+    build: ./services/users
+    command: bash /app/startup.sh
+    ports:
+      - 8002:8000
+    # Dev
+    volumes:
+      - ./services/users:/app/
+    depends_on:
+      - users_db
+    environment:
+      - DB_NAME=users
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=postgres
+      - DB_HOST=users_db
+
+  users_db:
+    image: postgres:12.1-alpine
+    volumes:
+      - ./services/users/data/:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_DB=users
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
