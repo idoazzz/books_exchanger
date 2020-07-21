@@ -20,8 +20,7 @@ async def startup_event():
     session.close()
 
 
-@app.get("/categories", response_model=List[CategoryResponse],
-         status_code=HTTP_200_OK)
+@app.get("/categories", response_model=List[CategoryResponse])
 def get_categories(filter: str = None, session=Depends(transaction)):
     """Get categories from the DB with optional filter.
 
@@ -40,8 +39,7 @@ def get_categories(filter: str = None, session=Depends(transaction)):
             for category in categories]
 
 
-@app.get("/category/{id}", response_model=CategoryResponse,
-         status_code=HTTP_200_OK)
+@app.get("/category/{id}", response_model=CategoryResponse)
 def get_categories_by_user_id(id: int, session=Depends(transaction)):
     """Get categories from the DB with optional filter.
 

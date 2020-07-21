@@ -11,7 +11,6 @@ class Book(Base):
     name = Column(String, nullable=False)
     author = Column(String, nullable=False)
     user_id = Column(Integer, nullable=False)
-    image = Column(LargeBinary, nullable=True)
     description = Column(String, nullable=False)
     publication_date = Column(Date, nullable=False)
     id = Column(Integer, primary_key=True, autoincrement=True)

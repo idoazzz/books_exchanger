@@ -41,6 +41,9 @@ def add_new_user(user_data: NewUserRequest, session=Depends(transaction)):
     Args:
         session (Session): DB session.
         user_data (UserCreate): New user target data.
+
+    Returns:
+        dict. User id.
     """
     if not is_valid_email(user_data.email):
         raise HTTPException(status_code=HTTP_400_BAD_REQUEST,
@@ -61,7 +64,7 @@ def add_new_user(user_data: NewUserRequest, session=Depends(transaction)):
     return {"user_id": user.id}
 
 
-@app.delete("/delete_user", status_code=HTTP_200_OK)
+@app.delete("/delete_user")
 def remove_user(user_data: UserAuthenticationRequest,
                 session=Depends(transaction)):
     """Deleting existing user from DB.
@@ -162,7 +165,7 @@ def search_nearby_users(latitude: float, longitude: float, radius: int,
                          longitude=user.longitude) for user in users]
 
 
-@app.post("/authenticate_user", status_code=HTTP_200_OK)
+@app.post("/authenticate_user")
 def authenticate_user(user_data: UserAuthenticationRequest,
                       session=Depends(transaction)):
     """Authenticate user.
@@ -180,7 +183,7 @@ def authenticate_user(user_data: UserAuthenticationRequest,
                             detail="Email or password are wrong.")
 
 
-@app.put("/update_user_categories", status_code=HTTP_200_OK)
+@app.put("/update_user_categories")
 def update_user_categories(user_data: UserCategoriesRequest,
                            session=Depends(transaction)):
     """Update user categories..
@@ -196,7 +199,8 @@ def update_user_categories(user_data: UserCategoriesRequest,
     update_categories_to_user(session, user_data.id, user_data.category_ids)
 
 
-@app.get("/user_categories/{id}", status_code=HTTP_200_OK)
+@app.get("/user_categories/{id}",
+         response_model=List[CategoryResponse])
 def get_user_categories(id: int, session=Depends(transaction)):
     """Get user categories.
 
