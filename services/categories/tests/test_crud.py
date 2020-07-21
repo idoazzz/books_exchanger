@@ -6,8 +6,7 @@ from contextlib2 import contextmanager
 from sqlalchemy.orm import sessionmaker
 from testing.postgresql import Postgresql
 
-from app.db.config import (init_categories, get_categories_dataset,
-                           drop_all_categories)
+from app.db.config import (init_categories, get_categories_dataset)
 from app.db.crud import (get_all_categories, get_categories_by_name,
                          insert_new_category, get_category_by_id)
 

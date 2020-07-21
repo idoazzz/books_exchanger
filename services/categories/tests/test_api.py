@@ -1,6 +1,4 @@
 """Testing API calls."""
-import logging
-
 from starlette.testclient import TestClient
 
 from app.main import app
@@ -40,7 +38,7 @@ def test_get_not_exists_category_by_name(mocker):
 def test_get_not_exists_category_by_id(mocker):
     """Test get not exists category (id search) functionality."""
     mocker.patch('app.main.get_category_by_id', return_value=None)
-    response = client.get(f"/category/1")
+    response = client.get("/category/1")
     assert response.status_code == 400
 
 
@@ -48,6 +46,6 @@ def test_get_exists_category_by_id(mocker):
     """Test ge exists category (id search) functionality."""
     mocked_category = MockedCategory(1, "test1")
     mocker.patch('app.main.get_category_by_id', return_value=mocked_category)
-    response = client.get(f"/category/1")
+    response = client.get("/category/1")
     assert response.status_code == 200
     assert response.json() == mocked_category.__dict__
