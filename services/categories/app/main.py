@@ -5,9 +5,9 @@ from fastapi import FastAPI, Depends, HTTPException
 from starlette.status import HTTP_400_BAD_REQUEST, HTTP_200_OK
 
 from .schemas import CategoryResponse
-from .db.crud import get_categories_by_name, get_all_categories, \
-    get_categories_by_id
 from .db.config import transaction, init_categories, Session, engine
+from .db.crud import (get_categories_by_name, get_all_categories,
+                      get_category_by_id)
 
 app = FastAPI()
 
@@ -40,7 +40,7 @@ def get_categories(filter: str = None, session=Depends(transaction)):
             for category in categories]
 
 
-@app.get("/category/{id}", response_model=List[CategoryResponse],
+@app.get("/category/{id}", response_model=CategoryResponse,
          status_code=HTTP_200_OK)
 def get_categories_by_user_id(id: int, session=Depends(transaction)):
     """Get categories from the DB with optional filter.
@@ -49,7 +49,7 @@ def get_categories_by_user_id(id: int, session=Depends(transaction)):
         id (int): Category id.
         session (Session): DB session.
     """
-    category = get_categories_by_id(session, id)
+    category = get_category_by_id(session, id)
     if category is None:
         raise HTTPException(status_code=HTTP_400_BAD_REQUEST,
                             detail="Category was not found.")

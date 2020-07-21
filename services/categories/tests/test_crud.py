@@ -6,9 +6,10 @@ from contextlib2 import contextmanager
 from sqlalchemy.orm import sessionmaker
 from testing.postgresql import Postgresql
 
-from app.db.config import (init_categories, get_categories_dataset)
+from app.db.config import (init_categories, get_categories_dataset,
+                           drop_all_categories)
 from app.db.crud import (get_all_categories, get_categories_by_name,
-                         insert_new_category, get_categories_by_id)
+                         insert_new_category, get_category_by_id)
 
 # Tests logger.
 logger = logging.getLogger()
@@ -71,8 +72,8 @@ def test_get_not_exist_category():
     with mocked_transaction() as session:
         categories = get_categories_by_name(session, "not_exist_category")
         assert categories == []
-        categories = get_categories_by_id(session, -1)
-        assert categories == []
+        categories = get_category_by_id(session, -1)
+        assert categories is None
 
 
 def test_adding_new_category():
@@ -87,8 +88,8 @@ def test_adding_new_category():
 
 def test_get_existing_category():
     """Test getting existing category functionality."""
-    tested_category = "test_category"
-    tested_filter = "test_"
+    tested_category = "existing_category"
+    tested_filter = "existing"
 
     with mocked_transaction() as session:
         category = insert_new_category(session, tested_category)
@@ -98,5 +99,5 @@ def test_get_existing_category():
         categories = get_categories_by_name(session, filter=tested_filter)
         assert [category.name for category in categories] == [tested_category]
 
-        categories = get_categories_by_id(session, id=category.id)
-        assert [category.name for category in categories] == [tested_category]
+        category = get_category_by_id(session, id=category.id)
+        assert category.name == tested_category

@@ -41,7 +41,7 @@ def get_categories_by_name(session, filter: str):
     return session.query(Category).filter(Category.name.contains(filter)).all()
 
 
-def get_categories_by_id(session, id: int):
+def get_category_by_id(session, id: int):
     """Get category that matches to specific id from DB.
     Args:
         id (int): Category id.

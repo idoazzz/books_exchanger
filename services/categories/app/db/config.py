@@ -46,3 +46,8 @@ def init_categories(engine, session):
         for category in get_categories_dataset():
             insert_new_category(session, name=category.strip())
         session.commit()
+
+
+def drop_all_categories(engine):
+    """Dropping db."""
+    Base.metadata.create_all(engine)
