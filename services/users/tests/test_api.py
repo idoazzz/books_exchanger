@@ -129,14 +129,15 @@ def test_get_exists_user_by_id(mocker):
 
 def test_get_not_exists_user_by_id(mocker):
     """Test get not-exists user by id functionality."""
-    fake_user_id = 1012
     mocker.patch('app.main.get_user_by_id', return_value=None)
+    fake_user_id = 1012
     response = client.get(f"/users/id/{fake_user_id}")
     assert response.status_code == 400
 
 
-def test_get_type_user_by_invalid_id():
+def test_get_type_user_by_invalid_id(mocker):
     """Test get user with illegal id functionality."""
+    mocker.patch('app.main.get_user_by_id', return_value=None)
     fake_user_id = "STRING"
     response = client.get(f"/users/id/{fake_user_id}")
     assert response.status_code == 400
@@ -161,8 +162,9 @@ def test_get_not_exists_user_by_email(mocker):
     assert response.status_code == 400
 
 
-def test_get_type_user_by_invalid_email():
+def test_get_type_user_by_invalid_email(mocker):
     """Test get user with illegal id functionality."""
+    mocker.patch('app.main.get_user_by_email', return_value=None)
     fake_user_emails = ["NOT_VALID_EMAIL", "ido@gmail.com!", "if...."]
     for email in fake_user_emails:
         response = client.get(f"/users/email/{email}")
@@ -186,8 +188,9 @@ def test_not_exists_user_authentication(mocker):
     assert response.status_code == 400
 
 
-def test_authentication_with_invalid_email():
+def test_authentication_with_invalid_email(mocker):
     """Test get user with illegal id functionality."""
+    mocker.patch('app.main.is_authenticated_user', return_value=False)
     fake_user_emails = ["NOT_VALID_EMAIL", "ido@gmail.com!", "if...."]
     for email in fake_user_emails:
         response = client.get(f"/users/email/{email}")
