@@ -7,6 +7,8 @@ from app.main import app
 fake = Faker()
 client = TestClient(app)
 
+invalid_emails = ["INVALID_EMAIL", "12311", "idoa.com", "i@."]
+
 
 class MockedUser:
     """Mocked user object."""
@@ -68,7 +70,6 @@ def test_add_already_exist_user(mocker):
 def test_add_invalid_user(mocker):
     """Test adding invalid user (email and password)."""
     # Invalid password.
-    invalid_emails = ["INVALID_EMAIL", "12311", "idoa@.com", "i@."]
     password = "FAKE_PASSWORD"
     password2 = "FAKE_PASSWORD_2"
 
@@ -162,10 +163,10 @@ def test_get_not_exists_user_by_email(mocker):
 
 def test_get_type_user_by_invalid_email():
     """Test get user with illegal id functionality."""
-    fake_user_emails = ["NOT_VALID_EMAIL", "ido@gmail.com!", "if...."]
-    for email in fake_user_emails:
+    for email in invalid_emails:
         response = client.get(f"/users/email/{email}")
-        assert response.status_code == 400
+        import ipdb; ipdb.set_trace()
+        assert response.status_code == 404
 
 
 # Test /authenticate_user endpoint.
