@@ -4,7 +4,8 @@ from typing import List
 
 from fastapi import FastAPI, Depends, HTTPException
 from starlette.status import (HTTP_201_CREATED, HTTP_400_BAD_REQUEST,
-                              HTTP_200_OK)
+                              HTTP_200_OK, HTTP_404_NOT_FOUND,
+                              HTTP_401_UNAUTHORIZED)
 
 from .db.tables import Base
 from .db.config import transaction, engine
@@ -110,7 +111,7 @@ def search_user(request_type: UserRequestType, key: str,
         user = get_user_by_email(session, key)
 
     if user is None:
-        raise HTTPException(status_code=HTTP_400_BAD_REQUEST,
+        raise HTTPException(status_code=HTTP_404_NOT_FOUND,
                             detail="User was not found.")
     return UserResponse(id=user.id, email=user.email, name=user.name,
                         address=user.address, latitude=user.latitude,
@@ -130,7 +131,7 @@ def search_user_by_email(email: str, session=Depends(transaction)):
     """
     user = get_user_by_email(session, email)
     if user is None:
-        raise HTTPException(status_code=HTTP_400_BAD_REQUEST,
+        raise HTTPException(status_code=HTTP_404_NOT_FOUND,
                             detail="User was not found.")
     return UserResponse(id=user.id, email=user.email, name=user.name,
                         address=user.address, latitude=user.latitude,
@@ -154,7 +155,7 @@ def search_nearby_users(latitude: float, longitude: float, radius: int,
 
     users = get_near_users(session, latitude, longitude, radius)
     if not users:
-        raise HTTPException(status_code=HTTP_400_BAD_REQUEST,
+        raise HTTPException(status_code=HTTP_404_NOT_FOUND,
                             detail="User was not found.")
     return [UserResponse(id=user.id, email=user.email, name=user.name,
                          address=user.address, latitude=user.latitude,
@@ -175,7 +176,7 @@ def authenticate_user(user_data: UserAuthenticationRequest,
                             detail="Email is invalid.")
 
     if not is_authenticated_user(session, user_data.email, user_data.password):
-        raise HTTPException(status_code=HTTP_400_BAD_REQUEST,
+        raise HTTPException(status_code=HTTP_401_UNAUTHORIZED,
                             detail="Email or password are wrong.")
 
 
@@ -190,7 +191,7 @@ def update_user_categories(user_data: UserCategoriesRequest,
     """
     user = get_user_by_id(session, user_data.id)
     if not user:
-        raise HTTPException(status_code=HTTP_400_BAD_REQUEST,
+        raise HTTPException(status_code=HTTP_404_NOT_FOUND,
                             detail="User was not found.")
     update_categories_to_user(session, user_data.id, user_data.category_ids)
 
@@ -205,7 +206,7 @@ def get_user_categories(id: int, session=Depends(transaction)):
     """
     user = get_user_by_id(session, id)
     if not user:
-        raise HTTPException(status_code=HTTP_400_BAD_REQUEST,
+        raise HTTPException(status_code=HTTP_404_NOT_FOUND,
                             detail="User was not found.")
     return [CategoryResponse(id=category_id) for category_id in
             user.categories_ids]
